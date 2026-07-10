@@ -8,7 +8,7 @@ const meta = computed(() => {
     case 'upstash':
       return { label: 'redis', dot: 'bg-go-500' }
     case 'memory':
-      return { label: 'in-memory (events won\'t persist)', dot: 'bg-warn-500' }
+      return { label: 'in-memory', dot: 'bg-warn-500' }
     default:
       return { label: 'checking…', dot: 'bg-night-600' }
   }

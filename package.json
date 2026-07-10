@@ -7,7 +7,11 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@upstash/redis": "^1.35.0",
@@ -16,8 +20,17 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.16.0",
     "@tailwindcss/vite": "^4.1.0",
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.5",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "eslint-flat-config-utils": "3.0.2"
+    }
   }
 }

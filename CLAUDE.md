@@ -61,21 +61,21 @@ Web Audio synth/file sound + speechSynthesis TTS + full-screen status flood
 
 ## Redis keys (prefix `disco:`)
 
-| Key | Type | Purpose |
-|---|---|---|
-| `disco:seq` | int | INCR per accepted event; the id doubles as the poll cursor |
-| `disco:events` | ZSET | member = JSON `DiscoEvent`, score = seq id, trimmed to last 200 |
-| `disco:dedupe:{pipelineId}:{status}` | string | SET NX EX 6h, absorbs GitLab webhook retries |
-| `disco:settings` | string | single JSON blob, defaults-merged on read |
+| Key                                  | Type   | Purpose                                                         |
+| ------------------------------------ | ------ | --------------------------------------------------------------- |
+| `disco:seq`                          | int    | INCR per accepted event; the id doubles as the poll cursor      |
+| `disco:events`                       | ZSET   | member = JSON `DiscoEvent`, score = seq id, trimmed to last 200 |
+| `disco:dedupe:{pipelineId}:{status}` | string | SET NX EX 6h, absorbs GitLab webhook retries                    |
+| `disco:settings`                     | string | single JSON blob, defaults-merged on read                       |
 
 ## Env vars
 
-| Var | Required | Notes |
-|---|---|---|
-| `APP_PASSWORD` | yes | login password, also accepted as `?key=` |
-| `GITLAB_WEBHOOK_SECRET` | yes | must equal the webhook's Secret token |
-| `UPSTASH_REDIS_REST_URL` / `_TOKEN` (or `KV_REST_API_URL` / `KV_REST_API_TOKEN`) | prod | injected by the Vercel Marketplace Redis integration — the naming varies by when it was connected; [redis.ts](server/utils/redis.ts) checks both. Absent = in-memory store, which does **not** persist across serverless invocations on Vercel |
-| `SESSION_SECRET` | no | cookie HMAC key; defaults to a hash of `APP_PASSWORD` |
+| Var                                                                              | Required | Notes                                                                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP_PASSWORD`                                                                   | yes      | login password, also accepted as `?key=`                                                                                                                                                                                                       |
+| `GITLAB_WEBHOOK_SECRET`                                                          | yes      | must equal the webhook's Secret token                                                                                                                                                                                                          |
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN` (or `KV_REST_API_URL` / `KV_REST_API_TOKEN`) | prod     | injected by the Vercel Marketplace Redis integration — the naming varies by when it was connected; [redis.ts](server/utils/redis.ts) checks both. Absent = in-memory store, which does **not** persist across serverless invocations on Vercel |
+| `SESSION_SECRET`                                                                 | no       | cookie HMAC key; defaults to a hash of `APP_PASSWORD`                                                                                                                                                                                          |
 
 Unset `APP_PASSWORD` means: auth disabled in dev, 503 in production.
 

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Tokens mirror DESIGN.md — change both together. */
 @theme {
@@ -21,8 +21,7 @@
   --color-stop-700: oklch(0.45 0.15 25);
   --color-warn-500: oklch(0.75 0.13 85);
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -47,6 +46,22 @@
     50% {
       opacity: 0.25;
     }
+  }
+}
+
+/* Applied via a raw inline `animation` style (duration varies with the poll
+   interval), never through an `animate-*` utility class — so it's declared
+   as plain CSS, outside @theme. Tailwind only emits @theme keyframes that a
+   generated utility class reaches; anything referenced solely by inline
+   style text gets silently dropped otherwise. Clips in symmetrically from
+   both edges so the visible segment stays centered, shrinking to a point in
+   the middle. */
+@keyframes poll-countdown {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 50% 0 50%);
   }
 }
 

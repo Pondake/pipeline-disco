@@ -9,9 +9,7 @@ async function onArm() {
 </script>
 
 <template>
-  <div
-    class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-night-950"
-  >
+  <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-night-950">
     <p class="text-lg text-night-400">Pipeline Disco needs one click to unlock the speakers.</p>
     <button
       class="rounded-md bg-disco-500 px-10 py-5 text-2xl font-bold text-night-950 transition-transform duration-150 hover:scale-105 active:scale-95"

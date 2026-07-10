@@ -23,9 +23,7 @@ export function safeEqual(a: string, b: string): boolean {
 }
 
 export function signSession(issuedAt = Date.now()): string {
-  const mac = createHmac('sha256', sessionSecret())
-    .update(String(issuedAt))
-    .digest('hex')
+  const mac = createHmac('sha256', sessionSecret()).update(String(issuedAt)).digest('hex')
   return `${issuedAt}.${mac}`
 }
 

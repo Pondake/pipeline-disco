@@ -29,8 +29,15 @@ function preview(id: string) {
       <span class="font-semibold text-night-200">Play a sound on pipeline events</span>
     </label>
 
-    <div class="mt-6 flex flex-col gap-4" :class="{ 'pointer-events-none opacity-40': !sound.enabled }">
-      <div v-for="o in outcomes" :key="o.key" class="grid grid-cols-[6rem_1fr_auto] items-center gap-3">
+    <div
+      class="mt-6 flex flex-col gap-4"
+      :class="{ 'pointer-events-none opacity-40': !sound.enabled }"
+    >
+      <div
+        v-for="o in outcomes"
+        :key="o.key"
+        class="grid grid-cols-[6rem_1fr_auto] items-center gap-3"
+      >
         <label :for="`sound-${o.key}`" class="text-sm font-semibold text-night-200">
           {{ o.label }}
         </label>

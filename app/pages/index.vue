@@ -28,6 +28,11 @@ function pushToFeed(event: DiscoEvent) {
   latest.value = event
 }
 
+function removeFromFeed(id: number) {
+  const index = feed.value.findIndex((e) => e.id === id)
+  if (index !== -1) feed.value.splice(index, 1)
+}
+
 async function announce(event: DiscoEvent) {
   if (muted.value || !armed.value) return
   const s = settings.value
@@ -131,6 +136,7 @@ const statusWord = (e: DiscoEvent) =>
       : e.status === 'pending'
         ? 'running'
         : 'canceled'
+const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 'failed')
 </script>
 
 <template>
@@ -147,7 +153,13 @@ const statusWord = (e: DiscoEvent) =>
       <div
         v-if="flash"
         class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 px-12 text-center"
-        :class="flash.status === 'success' ? 'bg-go-700' : flash.status === 'failed' ? 'bg-stop-700' : 'bg-night-800'"
+        :class="
+          flash.status === 'success'
+            ? 'bg-go-700'
+            : flash.status === 'failed'
+              ? 'bg-stop-700'
+              : 'bg-night-800'
+        "
       >
         <p class="text-4xl font-bold uppercase tracking-widest text-night-50/80">
           {{ statusWord(flash) }}
@@ -207,6 +219,20 @@ const statusWord = (e: DiscoEvent) =>
           />
           {{ latest.author }}
         </p>
+        <p v-if="latest.jobs?.length" class="mt-2 flex items-center gap-3 text-xl">
+          <PipelineStages :jobs="latest.jobs" :stages="latest.stages" class="text-base" />
+          <span
+            v-if="latest.status === 'failed' && failedJobs(latest).length"
+            class="text-stop-500"
+          >
+            failed:
+            {{
+              failedJobs(latest)
+                .map((j) => j.name)
+                .join(', ')
+            }}
+          </span>
+        </p>
       </div>
       <div v-else class="mt-6">
         <p class="animate-heartbeat text-6xl font-extrabold leading-tight text-night-600">
@@ -218,15 +244,39 @@ const statusWord = (e: DiscoEvent) =>
 
     <!-- Ledger -->
     <section class="mt-10 min-h-0 flex-1 overflow-hidden" aria-label="Recent pipelines">
-      <EventFeed :events="feed" />
+      <EventFeed :events="feed" @deleted="removeFromFeed" />
     </section>
 
     <!-- Toolbar -->
-    <footer class="mt-4 flex shrink-0 items-center gap-3 border-t border-night-900 pt-4">
+    <footer class="relative mt-4 flex shrink-0 items-center gap-3 pt-4">
+      <!-- Replaces a static border-t: the resting track is always visible,
+           and while listening an accent line sits on top of it, full width,
+           closing in from both edges toward the center. It meeting at the
+           center is the next poll firing. Linear timing (not the usual
+           ease-out-quint) because it represents real elapsed time, not
+           decoration. No accent line outside 'ok' — a stalled retry has no
+           meaningful countdown, so the track goes back to plain and static. -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-night-900"
+        aria-hidden="true"
+      />
+      <div
+        v-if="poller.connection.value === 'ok'"
+        :key="poller.pollCycle.value"
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-disco-500/50"
+        :style="{
+          animation: `poll-countdown ${poller.nextPollMs.value || 4000}ms linear 1 forwards`,
+        }"
+        aria-hidden="true"
+      />
       <ConnectionStatus :state="poller.connection.value" />
       <StoreStatus :store="storeBackend" />
       <span class="flex-1" />
-      <button class="toolbar-btn" :class="{ 'toolbar-btn-active': demo.running.value }" @click="demo.toggle()">
+      <button
+        class="toolbar-btn"
+        :class="{ 'toolbar-btn-active': demo.running.value }"
+        @click="demo.toggle()"
+      >
         {{ demo.running.value ? `Demo on · next in ${demo.countdown.value}s` : 'Demo mode' }}
       </button>
       <button class="toolbar-btn" @click="testSound">Test sound</button>

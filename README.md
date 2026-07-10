@@ -2,7 +2,7 @@
 
 Passing pipelines, out loud. A private GitLab instance sends pipeline webhooks
 here; a browser tab on speakers (say, a Raspberry Pi under the office TV) plays
-a sound and announces the result: *"Fix login redirect loop by Marthijn passed!"*
+a sound and announces the result: _"Fix login redirect loop by Marthijn passed!"_
 
 Runs entirely on Vercel. No servers to keep alive: webhooks land in a
 serverless Nuxt route, events sit in Upstash Redis, open tabs poll and do the
