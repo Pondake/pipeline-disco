@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Tokens mirror DESIGN.md — change both together. */
+@theme {
+  --color-*: initial;
+
+  --color-night-950: oklch(0.16 0.012 320);
+  --color-night-900: oklch(0.2 0.014 320);
+  --color-night-800: oklch(0.26 0.016 320);
+  --color-night-600: oklch(0.45 0.02 320);
+  --color-night-400: oklch(0.62 0.02 320);
+  --color-night-200: oklch(0.8 0.015 320);
+  --color-night-50: oklch(0.95 0.008 320);
+
+  --color-disco-500: oklch(0.68 0.16 320);
+  --color-disco-300: oklch(0.8 0.12 320);
+
+  --color-go-500: oklch(0.7 0.16 150);
+  --color-go-700: oklch(0.48 0.12 150);
+  --color-stop-500: oklch(0.66 0.19 25);
+  --color-stop-700: oklch(0.45 0.15 25);
+  --color-warn-500: oklch(0.75 0.13 85);
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-heartbeat: heartbeat 4s var(--ease-out-quint) infinite;
+
+  @keyframes heartbeat {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.75;
+    }
+  }
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-night-950);
+  color: var(--color-night-200);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-disco-500);
+  color: var(--color-night-950);
+}
+
+/* One focus vocabulary everywhere. */
+:focus-visible {
+  outline: 2px solid var(--color-disco-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
