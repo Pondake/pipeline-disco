@@ -16,8 +16,15 @@ let flashTimer: ReturnType<typeof setTimeout> | null = null
 const FEED_LIMIT = 30
 
 function pushToFeed(event: DiscoEvent) {
-  feed.value.push(event)
-  if (feed.value.length > FEED_LIMIT) feed.value.splice(0, feed.value.length - FEED_LIMIT)
+  // Same pipelineId as an existing row: update it in place (keeps its
+  // chronological slot) instead of appending a second row when it resolves.
+  const existingIndex = feed.value.findIndex((e) => e.pipelineId === event.pipelineId)
+  if (existingIndex !== -1) {
+    feed.value[existingIndex] = event
+  } else {
+    feed.value.push(event)
+    if (feed.value.length > FEED_LIMIT) feed.value.splice(0, feed.value.length - FEED_LIMIT)
+  }
   latest.value = event
 }
 
@@ -49,7 +56,8 @@ function showFlash(event: DiscoEvent) {
 
 function handleEvent(event: DiscoEvent, silent = false) {
   pushToFeed(event)
-  if (silent) return
+  // Pending is a quiet placeholder: no sound, no flood, until it resolves.
+  if (silent || event.status === 'pending') return
   showFlash(event)
   announce(event)
 }
@@ -71,8 +79,29 @@ const poller = useEventPoller(
 const demo = useDemoMode((event) => handleEvent(event))
 
 async function simulate(status: 'success' | 'failed') {
-  await $fetch('/api/test-event', { method: 'POST', body: { status } })
+  // Mirrors a real pipeline: a pending placeholder first, then the resolved
+  // outcome for the same pipelineId a couple seconds later.
+  const { event: pending } = await $fetch('/api/test-event', {
+    method: 'POST',
+    body: { status: 'pending' },
+  })
   poller.pollNow() // don't make the room wait out the poll interval
+  setTimeout(async () => {
+    await $fetch('/api/test-event', {
+      method: 'POST',
+      body: {
+        status,
+        pipelineId: pending.pipelineId,
+        project: pending.project,
+        projectPath: pending.projectPath,
+        branch: pending.branch,
+        mrTitle: pending.mrTitle,
+        mrIid: pending.mrIid,
+        author: pending.author,
+      },
+    })
+    poller.pollNow()
+  }, 2500)
 }
 
 function testSound() {
@@ -95,7 +124,13 @@ onUnmounted(() => {
 
 const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
 const statusWord = (e: DiscoEvent) =>
-  e.status === 'success' ? 'passed' : e.status === 'failed' ? 'failed' : 'canceled'
+  e.status === 'success'
+    ? 'passed'
+    : e.status === 'failed'
+      ? 'failed'
+      : e.status === 'pending'
+        ? 'running'
+        : 'canceled'
 </script>
 
 <template>
@@ -143,15 +178,22 @@ const statusWord = (e: DiscoEvent) =>
 
       <div v-if="latest" class="mt-6">
         <p
-          class="text-2xl font-bold uppercase tracking-wide"
+          class="flex items-center gap-3 text-2xl font-bold uppercase tracking-wide"
           :class="
             latest.status === 'success'
               ? 'text-go-500'
               : latest.status === 'failed'
                 ? 'text-stop-500'
-                : 'text-warn-500'
+                : latest.status === 'pending'
+                  ? 'text-night-600'
+                  : 'text-warn-500'
           "
         >
+          <span
+            v-if="latest.status === 'pending'"
+            class="size-2.5 shrink-0 animate-pulse-dot rounded-full bg-current"
+            aria-hidden="true"
+          />
           {{ statusWord(latest) }}
         </p>
         <p class="mt-1 truncate text-6xl font-extrabold leading-tight text-night-50">

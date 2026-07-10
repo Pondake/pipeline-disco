@@ -1,4 +1,4 @@
-export type PipelineStatus = 'success' | 'failed' | 'canceled'
+export type PipelineStatus = 'pending' | 'success' | 'failed' | 'canceled'
 
 export interface DiscoEvent {
   /** Monotonic sequence id assigned at ingest; doubles as the polling cursor. */

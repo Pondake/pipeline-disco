@@ -22,7 +22,7 @@ Neutrals are tinted toward the accent hue (h 320).
 | `night-950` | `oklch(0.16 0.012 320)` | page ground |
 | `night-900` | `oklch(0.20 0.014 320)` | raised surface (toolbar, inputs) |
 | `night-800` | `oklch(0.26 0.016 320)` | borders, dividers |
-| `night-600` | `oklch(0.45 0.02 320)` | disabled, faint text |
+| `night-600` | `oklch(0.45 0.02 320)` | disabled, faint text; also the pending/running status word + dot |
 | `night-400` | `oklch(0.62 0.02 320)` | secondary text |
 | `night-200` | `oklch(0.80 0.015 320)` | primary text on dark |
 | `night-50`  | `oklch(0.95 0.008 320)` | headline text |
@@ -47,6 +47,9 @@ Tabular numerals (`font-variant-numeric: tabular-nums`) for times and durations.
 - 150-250 ms transitions, `cubic-bezier(0.22, 1, 0.36, 1)` (ease-out-quint family). No bounce.
 - Event flood: fast in (~200 ms), hold ~4 s, slow ease-out (~800 ms).
 - Idle heartbeat on the empty state: slow opacity pulse, nothing else moves at rest.
+- Pending/running status: a small dot beside the status word pulses (`pulse-dot`,
+  1.4s) to read as live/busy rather than static — the only other opacity pulse
+  besides the idle heartbeat.
 - `prefers-reduced-motion`: floods become opacity-only fades; feed rows appear without translate.
 
 ## Components
