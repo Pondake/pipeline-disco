@@ -12,7 +12,11 @@ export default defineEventHandler(async (event) => {
   const parsed = parsePipelineEvent(body)
   if (!parsed) return { ok: true, skipped: 'status' }
 
-  if (!(await claimDedupe(parsed.pipelineId, parsed.status))) {
+  // finished_at is empty for pending statuses (fine — those still collapse
+  // into one placeholder) but distinguishes a genuine re-run reaching the
+  // same terminal status from GitLab re-delivering the same webhook.
+  const finishedAt = body?.object_attributes?.finished_at ?? ''
+  if (!(await claimDedupe(parsed.pipelineId, parsed.status, finishedAt))) {
     return { ok: true, skipped: 'duplicate' }
   }
 

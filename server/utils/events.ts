@@ -57,12 +57,18 @@ export async function deleteEvent(id: number): Promise<boolean> {
   return true
 }
 
-/** SET NX marker; returns false when this pipeline+status was already seen. */
-export async function claimDedupe(pipelineId: number, status: string): Promise<boolean> {
-  const result = await getRedis().set(`disco:dedupe:${pipelineId}:${status}`, '1', {
-    nx: true,
-    ex: 6 * 60 * 60,
-  })
+/** SET NX marker; returns false when this pipeline+status(+run) was already
+ *  seen. `discriminator` should be something that's identical across GitLab's
+ *  own webhook delivery retries but differs across actual re-runs of the
+ *  pipeline (e.g. finished_at) — pipelineId+status alone would treat a retry
+ *  that fails again as a duplicate of the first failure and silently drop it. */
+export async function claimDedupe(
+  pipelineId: number,
+  status: string,
+  discriminator = '',
+): Promise<boolean> {
+  const key = `disco:dedupe:${pipelineId}:${status}${discriminator ? `:${discriminator}` : ''}`
+  const result = await getRedis().set(key, '1', { nx: true, ex: 6 * 60 * 60 })
   return result !== null
 }
 

@@ -16,15 +16,14 @@ let flashTimer: ReturnType<typeof setTimeout> | null = null
 const FEED_LIMIT = 30
 
 function pushToFeed(event: DiscoEvent) {
-  // Same pipelineId as an existing row: update it in place (keeps its
-  // chronological slot) instead of appending a second row when it resolves.
+  // Same pipelineId as an existing row (it resolved, or a retry reused the
+  // id): drop the old row and re-append instead of updating in place, so the
+  // freshest activity always surfaces at the top rather than sitting wherever
+  // that pipeline first appeared.
   const existingIndex = feed.value.findIndex((e) => e.pipelineId === event.pipelineId)
-  if (existingIndex !== -1) {
-    feed.value[existingIndex] = event
-  } else {
-    feed.value.push(event)
-    if (feed.value.length > FEED_LIMIT) feed.value.splice(0, feed.value.length - FEED_LIMIT)
-  }
+  if (existingIndex !== -1) feed.value.splice(existingIndex, 1)
+  feed.value.push(event)
+  if (feed.value.length > FEED_LIMIT) feed.value.splice(0, feed.value.length - FEED_LIMIT)
   latest.value = event
 }
 
