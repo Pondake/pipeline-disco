@@ -76,6 +76,15 @@ export function useEventPoller(
       try {
         const res = await $fetch<EventsResponse>('/api/events')
         const seen = cursor
+        // If the server's real cursor is behind what we stored, the event log
+        // was reset underneath us (dev in-memory store restarted, or Redis was
+        // flushed) — our cursor is now higher than any id the server will ever
+        // produce again, so every future poll would return nothing forever.
+        // Adopt the server's cursor so polling can recover.
+        if (res.cursor < seen) {
+          cursor = res.cursor
+          localStorage.setItem(CURSOR_STORAGE_KEY, String(res.cursor))
+        }
         const history = res.events.filter((e) => e.id <= seen)
         if (history.length) onEvents(history, true)
       } catch {

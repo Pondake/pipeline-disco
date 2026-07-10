@@ -1,17 +1,26 @@
 import type { IncomingEvent, PipelineStatus, Settings } from '#shared/types'
 import { matchesAny } from '#shared/utils/match'
 
-const REACTIVE_STATUSES: PipelineStatus[] = ['success', 'failed', 'canceled']
+const TERMINAL_STATUSES: PipelineStatus[] = ['success', 'failed', 'canceled']
+// GitLab fires the pipeline webhook again for each of these; all collapse to
+// our single 'pending' status so the dedupe key stays stable and the ledger
+// gets one gray placeholder instead of a flicker of updates.
+const PENDING_GITLAB_STATUSES = ['created', 'pending', 'running', 'waiting_for_resource', 'preparing']
 
 /**
  * Extract a DiscoEvent from a GitLab pipeline webhook payload.
- * Returns null for statuses we never react to (running, pending, ...).
+ * Returns null for statuses we never react to (skipped, manual, scheduled, ...).
  */
 export function parsePipelineEvent(body: any): IncomingEvent | null {
   const attrs = body?.object_attributes
   if (!attrs || typeof attrs.id !== 'number') return null
-  const status = attrs.status as PipelineStatus
-  if (!REACTIVE_STATUSES.includes(status)) return null
+  const rawStatus = attrs.status as string
+  const status: PipelineStatus | null = TERMINAL_STATUSES.includes(rawStatus as PipelineStatus)
+    ? (rawStatus as PipelineStatus)
+    : PENDING_GITLAB_STATUSES.includes(rawStatus)
+      ? 'pending'
+      : null
+  if (!status) return null
 
   const mr = body.merge_request
   return {

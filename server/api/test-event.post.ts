@@ -23,19 +23,22 @@ const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]!
  */
 export default defineEventHandler(async (event) => {
   const body = await readBody(event).catch(() => ({}))
-  const status: PipelineStatus = body?.status === 'failed' ? 'failed' : 'success'
-  const project = pick(PROJECTS)
+  const status: PipelineStatus =
+    body?.status === 'failed' ? 'failed' : body?.status === 'pending' ? 'pending' : 'success'
+  const project =
+    body?.project && body?.projectPath ? { name: body.project, path: body.projectPath } : pick(PROJECTS)
   const stored = await appendEvent({
-    pipelineId: Date.now(),
+    // Reused across the pending -> resolved pair so the client merges them into one row.
+    pipelineId: typeof body?.pipelineId === 'number' ? body.pipelineId : Date.now(),
     status,
     project: project.name,
     projectPath: project.path,
-    branch: 'feature/simulated',
-    mrTitle: pick(TITLES),
-    mrIid: Math.floor(Math.random() * 900) + 100,
-    author: pick(AUTHORS),
+    branch: body?.branch ?? 'feature/simulated',
+    mrTitle: body?.mrTitle ?? pick(TITLES),
+    mrIid: typeof body?.mrIid === 'number' ? body.mrIid : Math.floor(Math.random() * 900) + 100,
+    author: body?.author ?? pick(AUTHORS),
     source: 'merge_request_event',
     duration: Math.floor(Math.random() * 500) + 60,
   })
-  return { ok: true, id: stored.id }
+  return { ok: true, event: stored }
 })

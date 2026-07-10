@@ -27,6 +27,7 @@
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
   --animate-heartbeat: heartbeat 4s var(--ease-out-quint) infinite;
+  --animate-pulse-dot: pulse-dot 1.4s var(--ease-out-quint) infinite;
 
   @keyframes heartbeat {
     0%,
@@ -35,6 +36,16 @@
     }
     50% {
       opacity: 0.75;
+    }
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
     }
   }
 }
