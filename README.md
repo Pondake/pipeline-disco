@@ -14,8 +14,9 @@ noise-making with the Web Audio API and browser text-to-speech.
 
 1. Push this repo to Git and import it into Vercel (framework preset: Nuxt).
 2. Add the **Upstash Redis** integration from the Vercel Marketplace
-   (free tier is plenty). It injects `UPSTASH_REDIS_REST_URL` and
-   `UPSTASH_REDIS_REST_TOKEN` automatically.
+   (free tier is plenty). Depending on when you connect it, it injects either
+   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` or the legacy Vercel
+   KV names `KV_REST_API_URL` / `KV_REST_API_TOKEN` — the app checks both.
 3. Add environment variables:
    - `APP_PASSWORD` — the shared password for the site
    - `GITLAB_WEBHOOK_SECRET` — any long random string
@@ -83,8 +84,8 @@ user unit). Two Linux gotchas:
 
 ```bash
 cp .env.example .env   # defaults: password "disco", webhook secret "local-webhook-secret"
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Without Upstash env vars the app uses an in-memory store, so no account is

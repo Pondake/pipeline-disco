@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import type { DiscoEvent } from '#shared/types'
+import type { DiscoEvent, StatusResponse } from '#shared/types'
 
 const { settings, load: loadSettings } = useSettings()
 const { armed, checkAutoArm, playSound } = useAudio()
 const tts = useTts()
+
+const storeBackend = ref<StatusResponse['store'] | null>(null)
 
 const feed = ref<DiscoEvent[]>([])
 const latest = ref<DiscoEvent | null>(null)
@@ -81,6 +83,9 @@ onMounted(async () => {
   await Promise.all([loadSettings(), checkAutoArm()])
   tts.loadVoices()
   poller.start()
+  $fetch<StatusResponse>('/api/status')
+    .then((s) => (storeBackend.value = s.store))
+    .catch(() => {})
 })
 
 onUnmounted(() => {
@@ -177,6 +182,7 @@ const statusWord = (e: DiscoEvent) =>
     <!-- Toolbar -->
     <footer class="mt-4 flex shrink-0 items-center gap-3 border-t border-night-900 pt-4">
       <ConnectionStatus :state="poller.connection.value" />
+      <StoreStatus :store="storeBackend" />
       <span class="flex-1" />
       <button class="toolbar-btn" :class="{ 'toolbar-btn-active': demo.running.value }" @click="demo.toggle()">
         {{ demo.running.value ? `Demo on · next in ${demo.countdown.value}s` : 'Demo mode' }}
