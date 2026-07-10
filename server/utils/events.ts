@@ -33,13 +33,27 @@ export async function pruneStaleEvents(): Promise<void> {
   if (stale.length) await kv.zrem(EVENTS_KEY, stale)
 }
 
-/** Deletes a single event by id. Returns false if it was already gone. */
+/** Deletes a pipeline's event(s) by id. A pipeline can have written more than
+ *  one entry (a pending placeholder plus its resolved outcome, both sharing
+ *  pipelineId) even though the UI collapses them into a single row — leaving
+ *  the other one behind would let it resurface as "running" in a fresh
+ *  session once the resolved entry is gone. Returns false if already gone. */
 export async function deleteEvent(id: number): Promise<boolean> {
   const kv = getRedis()
   const raw = await kv.zrangeByScore(EVENTS_KEY, id - 1, 1)
   const match = raw[0]
   if (!match) return false
-  await kv.zrem(EVENTS_KEY, [match])
+  const target: DiscoEvent = JSON.parse(match)
+  const all = await kv.zrangeTail(EVENTS_KEY, RETAIN)
+  const toRemove = all.filter((member) => {
+    try {
+      return (JSON.parse(member) as DiscoEvent).pipelineId === target.pipelineId
+    } catch {
+      return false
+    }
+  })
+  if (!toRemove.length) return false
+  await kv.zrem(EVENTS_KEY, toRemove)
   return true
 }
 
