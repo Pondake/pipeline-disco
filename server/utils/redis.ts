@@ -7,16 +7,13 @@ import { Redis } from '@upstash/redis'
  */
 export interface KV {
   get(key: string): Promise<string | null>
-  set(
-    key: string,
-    value: string,
-    opts?: { nx?: boolean; ex?: number },
-  ): Promise<string | null>
+  set(key: string, value: string, opts?: { nx?: boolean; ex?: number }): Promise<string | null>
   incr(key: string): Promise<number>
   zadd(key: string, entry: { score: number; member: string }): Promise<unknown>
   zrangeByScore(key: string, minExclusive: number, count: number): Promise<string[]>
   zrangeTail(key: string, count: number): Promise<string[]>
   zremrangebyrank(key: string, start: number, stop: number): Promise<unknown>
+  zrem(key: string, members: string[]): Promise<unknown>
 }
 
 /**
@@ -49,6 +46,7 @@ function upstashKV(credentials: { url: string; token: string }): KV {
       }),
     zrangeTail: (key, count) => redis.zrange<string[]>(key, -count, -1),
     zremrangebyrank: (key, start, stop) => redis.zremrangebyrank(key, start, stop),
+    zrem: (key, members) => (members.length ? redis.zrem(key, ...members) : Promise.resolve(0)),
   }
 }
 
@@ -120,6 +118,13 @@ function memoryKV(): KV {
       zset.splice(from, to - from + 1)
       store.zsets.set(key, zset)
       return 1
+    },
+    async zrem(key, members) {
+      const zset = store.zsets.get(key) ?? []
+      const remove = new Set(members)
+      const filtered = zset.filter((e) => !remove.has(e.member))
+      store.zsets.set(key, filtered)
+      return zset.length - filtered.length
     },
   }
 }

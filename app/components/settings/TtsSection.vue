@@ -52,9 +52,18 @@ function speakTest(template: string) {
       <span class="font-semibold text-night-200">Speak an announcement</span>
     </label>
 
-    <div class="mt-6 flex flex-col gap-4" :class="{ 'pointer-events-none opacity-40': !tts.enabled }">
-      <div v-for="t in templates" :key="t.key" class="grid grid-cols-[6rem_1fr_auto] items-center gap-3">
-        <label :for="`tts-${t.key}`" class="text-sm font-semibold text-night-200">{{ t.label }}</label>
+    <div
+      class="mt-6 flex flex-col gap-4"
+      :class="{ 'pointer-events-none opacity-40': !tts.enabled }"
+    >
+      <div
+        v-for="t in templates"
+        :key="t.key"
+        class="grid grid-cols-[6rem_1fr_auto] items-center gap-3"
+      >
+        <label :for="`tts-${t.key}`" class="text-sm font-semibold text-night-200">{{
+          t.label
+        }}</label>
         <input
           :id="`tts-${t.key}`"
           v-model="tts[t.key]"
@@ -96,7 +105,9 @@ function speakTest(template: string) {
           step="0.1"
           class="accent-disco-500"
         />
-        <span class="w-10 text-right text-sm text-night-400 tabular-nums">{{ tts.rate.toFixed(1) }}×</span>
+        <span class="w-10 text-right text-sm text-night-400 tabular-nums"
+          >{{ tts.rate.toFixed(1) }}×</span
+        >
       </div>
 
       <p v-if="!engine.available.value" class="text-sm text-warn-500">

@@ -3,16 +3,18 @@ import { defaultSettings } from '#shared/utils/defaults'
 
 const SETTINGS_KEY = 'disco:settings'
 
-const clamp = (n: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, n))
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
 
 const strings = (v: unknown): string[] =>
-  Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim()) : []
+  Array.isArray(v)
+    ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '').map((s) => s.trim())
+    : []
 
 /** Merge an untrusted partial onto defaults, clamping numeric fields. */
 export function normalizeSettings(raw: unknown): Settings {
   const d = defaultSettings()
   if (!raw || typeof raw !== 'object') return d
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untrusted JSON boundary, shape asserted field-by-field below
   const r = raw as Record<string, any>
   return {
     version: 1,
@@ -37,13 +39,23 @@ export function normalizeSettings(raw: unknown): Settings {
       failedTemplate:
         typeof r.tts?.failedTemplate === 'string' ? r.tts.failedTemplate : d.tts.failedTemplate,
       canceledTemplate:
-        typeof r.tts?.canceledTemplate === 'string' ? r.tts.canceledTemplate : d.tts.canceledTemplate,
+        typeof r.tts?.canceledTemplate === 'string'
+          ? r.tts.canceledTemplate
+          : d.tts.canceledTemplate,
       voice: typeof r.tts?.voice === 'string' ? r.tts.voice : d.tts.voice,
       rate: clamp(Number(r.tts?.rate ?? d.tts.rate) || d.tts.rate, 0.5, 2),
     },
     polling: {
-      activeMs: clamp(Number(r.polling?.activeMs ?? d.polling.activeMs) || d.polling.activeMs, 2000, 60000),
-      idleMs: clamp(Number(r.polling?.idleMs ?? d.polling.idleMs) || d.polling.idleMs, 5000, 120000),
+      activeMs: clamp(
+        Number(r.polling?.activeMs ?? d.polling.activeMs) || d.polling.activeMs,
+        2000,
+        60000,
+      ),
+      idleMs: clamp(
+        Number(r.polling?.idleMs ?? d.polling.idleMs) || d.polling.idleMs,
+        5000,
+        120000,
+      ),
     },
   }
 }

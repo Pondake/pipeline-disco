@@ -11,6 +11,8 @@ export function useEventPoller(
 ) {
   const connection = ref<ConnectionState>('ok')
   const lastEventAt = ref(0)
+  const nextPollMs = ref(0)
+  const pollCycle = ref(0)
   let cursor: number | null = null
   let failures = 0
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -40,9 +42,10 @@ export function useEventPoller(
         if (!res.initial) lastEventAt.value = Date.now()
         onEvents(res.events, res.initial)
       }
-    } catch (err: any) {
+    } catch (err) {
       // 401 means the session cookie expired: back to login, not endless retries.
-      if (err?.statusCode === 401 || err?.status === 401) {
+      const status = err as { statusCode?: number; status?: number } | undefined
+      if (status?.statusCode === 401 || status?.status === 401) {
         stopped = true
         return navigateTo('/login')
       }
@@ -62,7 +65,10 @@ export function useEventPoller(
 
   function schedule() {
     if (stopped) return
-    timer = setTimeout(poll, interval())
+    const ms = interval()
+    nextPollMs.value = ms
+    pollCycle.value++
+    timer = setTimeout(poll, ms)
   }
 
   async function start() {
@@ -107,5 +113,5 @@ export function useEventPoller(
     document.removeEventListener('visibilitychange', onVisible)
   }
 
-  return { connection, start, stop, pollNow }
+  return { connection, start, stop, pollNow, nextPollMs, pollCycle }
 }

@@ -17,22 +17,22 @@ floods with the outcome color for a few seconds, then eases back.
 
 Neutrals are tinted toward the accent hue (h 320).
 
-| Token | Value | Use |
-|---|---|---|
-| `night-950` | `oklch(0.16 0.012 320)` | page ground |
-| `night-900` | `oklch(0.20 0.014 320)` | raised surface (toolbar, inputs) |
-| `night-800` | `oklch(0.26 0.016 320)` | borders, dividers |
-| `night-600` | `oklch(0.45 0.02 320)` | disabled, faint text; also the pending/running status word + dot |
-| `night-400` | `oklch(0.62 0.02 320)` | secondary text |
-| `night-200` | `oklch(0.80 0.015 320)` | primary text on dark |
-| `night-50`  | `oklch(0.95 0.008 320)` | headline text |
-| `disco-500` | `oklch(0.68 0.16 320)` | accent: primary actions, selection, focus |
-| `disco-300` | `oklch(0.80 0.12 320)` | accent text on dark |
-| `go-500`    | `oklch(0.70 0.16 150)` | success text/icons |
-| `go-700`    | `oklch(0.48 0.12 150)` | success flood ground |
-| `stop-500`  | `oklch(0.66 0.19 25)`  | failure text/icons |
-| `stop-700`  | `oklch(0.45 0.15 25)`  | failure flood ground |
-| `warn-500`  | `oklch(0.75 0.13 85)`  | degraded connection, canceled |
+| Token       | Value                   | Use                                                              |
+| ----------- | ----------------------- | ---------------------------------------------------------------- |
+| `night-950` | `oklch(0.16 0.012 320)` | page ground                                                      |
+| `night-900` | `oklch(0.20 0.014 320)` | raised surface (toolbar, inputs)                                 |
+| `night-800` | `oklch(0.26 0.016 320)` | borders, dividers                                                |
+| `night-600` | `oklch(0.45 0.02 320)`  | disabled, faint text; also the pending/running status word + dot |
+| `night-400` | `oklch(0.62 0.02 320)`  | secondary text                                                   |
+| `night-200` | `oklch(0.80 0.015 320)` | primary text on dark                                             |
+| `night-50`  | `oklch(0.95 0.008 320)` | headline text                                                    |
+| `disco-500` | `oklch(0.68 0.16 320)`  | accent: primary actions, selection, focus                        |
+| `disco-300` | `oklch(0.80 0.12 320)`  | accent text on dark                                              |
+| `go-500`    | `oklch(0.70 0.16 150)`  | success text/icons                                               |
+| `go-700`    | `oklch(0.48 0.12 150)`  | success flood ground                                             |
+| `stop-500`  | `oklch(0.66 0.19 25)`   | failure text/icons                                               |
+| `stop-700`  | `oklch(0.45 0.15 25)`   | failure flood ground                                             |
+| `warn-500`  | `oklch(0.75 0.13 85)`   | degraded connection, canceled                                    |
 
 ## Typography
 

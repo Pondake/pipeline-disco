@@ -143,7 +143,8 @@ const SYNTHS: Record<string, SynthRecipe> = {
     label: 'Tada',
     play(ctx, out) {
       for (const f of [392, 523.25, 659.25]) note(ctx, out, 'triangle', f, 0, 0.22, 0.3)
-      for (const f of [523.25, 659.25, 783.99, 1046.5]) note(ctx, out, 'triangle', f, 0.22, 1.1, 0.28)
+      for (const f of [523.25, 659.25, 783.99, 1046.5])
+        note(ctx, out, 'triangle', f, 0.22, 1.1, 0.28)
       noise(ctx, out, 0.22, 0.5, 'highpass', 6000, 0.15)
       return 1.4
     },
@@ -159,7 +160,18 @@ const SYNTHS: Record<string, SynthRecipe> = {
   'synth:powerup': {
     label: 'Power-up',
     play(ctx, out) {
-      slide(ctx, out, 'square', [[220, 0], [880, 0.45]], 0, 0.5, 0.25)
+      slide(
+        ctx,
+        out,
+        'square',
+        [
+          [220, 0],
+          [880, 0.45],
+        ],
+        0,
+        0.5,
+        0.25,
+      )
       note(ctx, out, 'square', 1108.7, 0.48, 0.35, 0.25)
       return 0.9
     },
@@ -192,7 +204,18 @@ const SYNTHS: Record<string, SynthRecipe> = {
         [261.63, 1.08, 0.9],
       ]
       for (const [f, at, len] of notes) {
-        slide(ctx, out, 'sawtooth', [[f, 0], [f * 0.93, len]], at, len, 0.3)
+        slide(
+          ctx,
+          out,
+          'sawtooth',
+          [
+            [f, 0],
+            [f * 0.93, len],
+          ],
+          at,
+          len,
+          0.3,
+        )
       }
       return 2.1
     },
@@ -209,15 +232,48 @@ const SYNTHS: Record<string, SynthRecipe> = {
   'synth:laser': {
     label: 'Laser',
     play(ctx, out) {
-      slide(ctx, out, 'square', [[1600, 0], [180, 0.28]], 0, 0.3, 0.3)
+      slide(
+        ctx,
+        out,
+        'square',
+        [
+          [1600, 0],
+          [180, 0.28],
+        ],
+        0,
+        0.3,
+        0.3,
+      )
       return 0.35
     },
   },
   'synth:womp': {
     label: 'Womp',
     play(ctx, out) {
-      slide(ctx, out, 'sawtooth', [[130, 0], [55, 0.7]], 0, 0.85, 0.4)
-      slide(ctx, out, 'sawtooth', [[133, 0], [57, 0.7]], 0, 0.85, 0.4)
+      slide(
+        ctx,
+        out,
+        'sawtooth',
+        [
+          [130, 0],
+          [55, 0.7],
+        ],
+        0,
+        0.85,
+        0.4,
+      )
+      slide(
+        ctx,
+        out,
+        'sawtooth',
+        [
+          [133, 0],
+          [57, 0.7],
+        ],
+        0,
+        0.85,
+        0.4,
+      )
       return 0.95
     },
   },
@@ -241,7 +297,18 @@ const SYNTHS: Record<string, SynthRecipe> = {
   'synth:pop': {
     label: 'Pop',
     play(ctx, out) {
-      slide(ctx, out, 'sine', [[500, 0], [120, 0.08]], 0, 0.1, 0.5)
+      slide(
+        ctx,
+        out,
+        'sine',
+        [
+          [500, 0],
+          [120, 0.08],
+        ],
+        0,
+        0.1,
+        0.5,
+      )
       return 0.15
     },
   },

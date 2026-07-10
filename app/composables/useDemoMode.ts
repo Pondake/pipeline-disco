@@ -1,8 +1,28 @@
-import type { DiscoEvent } from '#shared/types'
+import type { DiscoEvent, DiscoJob } from '#shared/types'
 
 const DEMO_INTERVAL_MS = 10000
 
-const SAMPLES: Array<Pick<DiscoEvent, 'project' | 'projectPath' | 'branch' | 'mrTitle' | 'author'>> = [
+const DEMO_STAGES = ['build', 'test', 'deploy']
+// failStage: index into DEMO_STAGES to fail a hard (non-allowed) job in, or
+// null for an all-pass pipeline. flaky-e2e always fails but is allow_failure,
+// exercising the amber "soft failure" case regardless of overall outcome.
+function demoJobs(failStage: number | null): DiscoJob[] {
+  return [
+    { name: 'compile', stage: 'build', status: 'success' },
+    { name: 'unit', stage: 'test', status: failStage === 1 ? 'failed' : 'success' },
+    { name: 'lint', stage: 'test', status: 'success' },
+    { name: 'flaky-e2e', stage: 'test', status: 'failed', allowFailure: true },
+    {
+      name: 'deploy-staging',
+      stage: 'deploy',
+      status: failStage === 2 ? 'failed' : failStage !== null ? 'skipped' : 'success',
+    },
+  ]
+}
+
+const SAMPLES: Array<
+  Pick<DiscoEvent, 'project' | 'projectPath' | 'branch' | 'mrTitle' | 'author'>
+> = [
   {
     project: 'customer-portal',
     projectPath: 'web/customer-portal',
@@ -66,11 +86,25 @@ export function useDemoMode(onEvent: (event: DiscoEvent) => void) {
       demo: true,
     }
     const status = tick % 2 === 0 ? 'failed' : 'success'
-    const resolve = () => onEvent({ ...base, id: nextId(), ts: Date.now(), status })
+    // jobs are only meaningful once a pipeline resolves (mirrors the real
+    // webhook, where builds[] is stale while still running), so they're only
+    // attached on the resolved event, never the pending placeholder.
+    const resolve = () =>
+      onEvent({
+        ...base,
+        id: nextId(),
+        ts: Date.now(),
+        status,
+        stages: DEMO_STAGES,
+        jobs: demoJobs(status === 'failed' ? (tick % 4 === 0 ? 1 : 2) : null),
+      })
 
     if (Math.random() < PENDING_CHANCE) {
       onEvent({ ...base, id: nextId(), ts: Date.now(), status: 'pending' })
-      resolveTimer = setTimeout(resolve, PENDING_MIN_MS + Math.random() * (PENDING_MAX_MS - PENDING_MIN_MS))
+      resolveTimer = setTimeout(
+        resolve,
+        PENDING_MIN_MS + Math.random() * (PENDING_MAX_MS - PENDING_MIN_MS),
+      )
     } else {
       resolve()
     }
@@ -96,7 +130,8 @@ export function useDemoMode(onEvent: (event: DiscoEvent) => void) {
   }
 
   function toggle() {
-    running.value ? stop() : start()
+    if (running.value) stop()
+    else start()
   }
 
   onUnmounted(stop)

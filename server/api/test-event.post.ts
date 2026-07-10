@@ -1,4 +1,20 @@
-import type { PipelineStatus } from '#shared/types'
+import type { DiscoJob, PipelineStatus } from '#shared/types'
+
+const STAGES = ['build', 'test', 'deploy']
+function fixtureJobs(status: PipelineStatus): DiscoJob[] | undefined {
+  if (status === 'pending') return undefined
+  return [
+    { name: 'compile', stage: 'build', status: 'success' },
+    { name: 'unit', stage: 'test', status: status === 'failed' ? 'failed' : 'success' },
+    { name: 'lint', stage: 'test', status: 'success' },
+    { name: 'flaky-e2e', stage: 'test', status: 'failed', allowFailure: true },
+    {
+      name: 'deploy-staging',
+      stage: 'deploy',
+      status: status === 'success' ? 'success' : 'skipped',
+    },
+  ]
+}
 
 const TITLES = [
   'Fix login redirect loop',
@@ -26,7 +42,9 @@ export default defineEventHandler(async (event) => {
   const status: PipelineStatus =
     body?.status === 'failed' ? 'failed' : body?.status === 'pending' ? 'pending' : 'success'
   const project =
-    body?.project && body?.projectPath ? { name: body.project, path: body.projectPath } : pick(PROJECTS)
+    body?.project && body?.projectPath
+      ? { name: body.project, path: body.projectPath }
+      : pick(PROJECTS)
   const stored = await appendEvent({
     // Reused across the pending -> resolved pair so the client merges them into one row.
     pipelineId: typeof body?.pipelineId === 'number' ? body.pipelineId : Date.now(),
@@ -39,6 +57,8 @@ export default defineEventHandler(async (event) => {
     author: body?.author ?? pick(AUTHORS),
     source: 'merge_request_event',
     duration: Math.floor(Math.random() * 500) + 60,
+    stages: status !== 'pending' ? STAGES : undefined,
+    jobs: fixtureJobs(status),
   })
   return { ok: true, event: stored }
 })
