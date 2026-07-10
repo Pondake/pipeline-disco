@@ -4,14 +4,17 @@ GitLab pipeline sound/TTS notifier. A private GitLab instance POSTs pipeline
 webhooks here; open browser tabs (typically a Raspberry Pi kiosk on a wall
 display with speakers) poll for new events and play a sound plus a spoken
 announcement when a pipeline passes or fails. Hosted entirely on Vercel; Nuxt
-server routes are the only backend.
+server routes are the only backend. Package manager is pnpm (pinned via
+`packageManager` in [package.json](package.json)); Vercel's install command in
+[vercel.json](vercel.json) installs pnpm via npm directly rather than through
+Corepack, to sidestep Corepack's pnpm signature-verification failures.
 
 ## Commands
 
 ```bash
-npm run dev        # dev server on :3000 (uses in-memory store, no Upstash needed)
-npm run build      # production build (Vercel/Nitro)
-npm run preview    # preview the production build locally
+pnpm dev        # dev server on :3000 (uses in-memory store, no Upstash needed)
+pnpm build      # production build (Vercel/Nitro)
+pnpm preview    # preview the production build locally
 ```
 
 No test suite. Verify changes by running the dev server and using the
@@ -71,7 +74,7 @@ Web Audio synth/file sound + speechSynthesis TTS + full-screen status flood
 |---|---|---|
 | `APP_PASSWORD` | yes | login password, also accepted as `?key=` |
 | `GITLAB_WEBHOOK_SECRET` | yes | must equal the webhook's Secret token |
-| `UPSTASH_REDIS_REST_URL` / `_TOKEN` | prod | injected by the Vercel Upstash integration; absent = in-memory store |
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN` (or `KV_REST_API_URL` / `KV_REST_API_TOKEN`) | prod | injected by the Vercel Marketplace Redis integration — the naming varies by when it was connected; [redis.ts](server/utils/redis.ts) checks both. Absent = in-memory store, which does **not** persist across serverless invocations on Vercel |
 | `SESSION_SECRET` | no | cookie HMAC key; defaults to a hash of `APP_PASSWORD` |
 
 Unset `APP_PASSWORD` means: auth disabled in dev, 503 in production.

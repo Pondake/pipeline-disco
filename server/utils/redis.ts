@@ -19,8 +19,19 @@ export interface KV {
   zremrangebyrank(key: string, start: number, stop: number): Promise<unknown>
 }
 
-function upstashKV(): KV {
-  const redis = Redis.fromEnv({ automaticDeserialization: false })
+/**
+ * The Vercel Marketplace "Redis" integration (Upstash-backed) injects
+ * KV_REST_API_URL / KV_REST_API_TOKEN, not the UPSTASH_REDIS_REST_* names
+ * @upstash/redis's Redis.fromEnv() expects. Accept either.
+ */
+function resolveUpstashCredentials(): { url: string; token: string } | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN
+  return url && token ? { url, token } : null
+}
+
+function upstashKV(credentials: { url: string; token: string }): KV {
+  const redis = new Redis({ ...credentials, automaticDeserialization: false })
   return {
     get: (key) => redis.get<string>(key),
     set: (key, value, opts) =>
@@ -117,7 +128,13 @@ let kv: KV | null = null
 
 export function getRedis(): KV {
   if (!kv) {
-    kv = process.env.UPSTASH_REDIS_REST_URL ? upstashKV() : memoryKV()
+    const credentials = resolveUpstashCredentials()
+    kv = credentials ? upstashKV(credentials) : memoryKV()
   }
   return kv
+}
+
+/** Which backend getRedis() will use — for the footer status dot. */
+export function getStoreBackend(): 'upstash' | 'memory' {
+  return resolveUpstashCredentials() ? 'upstash' : 'memory'
 }

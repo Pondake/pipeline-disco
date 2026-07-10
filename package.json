@@ -2,6 +2,7 @@
   "name": "pipeline-disco",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.12.1",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",

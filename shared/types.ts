@@ -73,3 +73,8 @@ export interface EventsResponse {
   /** True when no cursor was supplied: render history, play no audio. */
   initial: boolean
 }
+
+export interface StatusResponse {
+  /** 'memory' means events don't survive across serverless invocations. */
+  store: 'upstash' | 'memory'
+}
