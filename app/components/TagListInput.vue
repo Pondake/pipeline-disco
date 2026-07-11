@@ -34,13 +34,7 @@ function remove(tag: string) {
         class="flex-1 rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50 placeholder:text-night-600"
         @keydown.enter.prevent="add"
       />
-      <button
-        type="button"
-        class="rounded-md border border-night-800 bg-night-900 px-4 text-sm font-semibold text-night-200 transition-colors duration-150 hover:border-night-600"
-        @click="add"
-      >
-        Add
-      </button>
+      <AppButton class="px-4 text-sm font-semibold" @click="add"> Add </AppButton>
     </div>
     <ul v-if="tags.length" class="mt-3 flex flex-wrap gap-2">
       <li
@@ -51,7 +45,7 @@ function remove(tag: string) {
         {{ tag }}
         <button
           type="button"
-          class="rounded px-1 text-night-400 transition-colors duration-150 hover:text-stop-500"
+          class="cursor-pointer rounded px-1 text-night-400 transition-colors duration-150 hover:text-stop-500"
           :aria-label="`Remove ${tag}`"
           @click="remove(tag)"
         >

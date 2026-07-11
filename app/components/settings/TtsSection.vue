@@ -47,44 +47,27 @@ function speakTest(template: string) {
       >
     </p>
 
-    <label class="mt-6 flex items-center gap-3">
-      <input v-model="tts.enabled" type="checkbox" class="size-4 accent-disco-500" />
-      <span class="font-semibold text-night-200">Speak an announcement</span>
-    </label>
+    <CheckboxField v-model="tts.enabled" label="Speak an announcement" class="mt-6" />
 
     <div
       class="mt-6 flex flex-col gap-4"
       :class="{ 'pointer-events-none opacity-40': !tts.enabled }"
     >
-      <div
-        v-for="t in templates"
-        :key="t.key"
-        class="grid grid-cols-[6rem_1fr_auto] items-center gap-3"
-      >
-        <label :for="`tts-${t.key}`" class="text-sm font-semibold text-night-200">{{
-          t.label
-        }}</label>
+      <SettingsRow v-for="t in templates" :key="t.key" :label="t.label" :input-id="`tts-${t.key}`">
         <input
           :id="`tts-${t.key}`"
           v-model="tts[t.key]"
           type="text"
           class="rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
         />
-        <button
-          type="button"
-          class="rounded-md border border-night-800 bg-night-900 px-3 py-2 text-sm text-night-200 transition-colors duration-150 hover:border-night-600"
-          @click="speakTest(tts[t.key])"
-        >
-          Speak
-        </button>
-      </div>
+        <AppButton class="px-3 py-2 text-sm" @click="speakTest(tts[t.key])">Speak</AppButton>
+      </SettingsRow>
 
-      <div class="grid grid-cols-[6rem_1fr_auto] items-center gap-3">
-        <label for="voice" class="text-sm font-semibold text-night-200">Voice</label>
+      <SettingsRow label="Voice" input-id="voice">
         <select
           id="voice"
           v-model="tts.voice"
-          class="rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
+          class="cursor-pointer rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
         >
           <option value="">Browser default</option>
           <option v-for="v in engine.voices.value" :key="v.voiceURI" :value="v.voiceURI">
@@ -92,10 +75,9 @@ function speakTest(template: string) {
           </option>
         </select>
         <span />
-      </div>
+      </SettingsRow>
 
-      <div class="grid grid-cols-[6rem_1fr_auto] items-center gap-3">
-        <label for="rate" class="text-sm font-semibold text-night-200">Rate</label>
+      <SettingsRow label="Rate" input-id="rate">
         <input
           id="rate"
           v-model.number="tts.rate"
@@ -103,12 +85,12 @@ function speakTest(template: string) {
           min="0.5"
           max="2"
           step="0.1"
-          class="accent-disco-500"
+          class="cursor-pointer accent-disco-500"
         />
         <span class="w-10 text-right text-sm text-night-400 tabular-nums"
           >{{ tts.rate.toFixed(1) }}×</span
         >
-      </div>
+      </SettingsRow>
 
       <p v-if="!engine.available.value" class="text-sm text-warn-500">
         No speech voices found on this device. Voices are per-device; on a Raspberry Pi, install

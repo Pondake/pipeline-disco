@@ -1,3 +1,5 @@
+import type { WebhookEvents } from 'gitlab-event-types'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const token = getHeader(event, 'x-gitlab-token')
@@ -6,8 +8,16 @@ export default defineEventHandler(async (event) => {
   }
 
   // Past the token check, always answer 2xx so GitLab doesn't retry-storm.
-  const body = await readBody(event)
-  if (body?.object_kind !== 'pipeline') return { ok: true, skipped: 'not-pipeline' }
+  // GitLab can be configured to send any event kind to this URL, so type as
+  // the full union and let object_kind narrow it — a pipeline webhook is far
+  // from the only shape that could actually arrive here. A few GitLab event
+  // kinds (group member, project, subgroup) use `event_name` instead of
+  // `object_kind` — one of many inconsistencies GitLab's own webhook docs
+  // acknowledge — so the `in` check comes first rather than a bare `?.` read.
+  const body = await readBody<WebhookEvents>(event)
+  if (!body || !('object_kind' in body) || body.object_kind !== 'pipeline') {
+    return { ok: true, skipped: 'not-pipeline' }
+  }
 
   const parsed = parsePipelineEvent(body)
   if (!parsed) return { ok: true, skipped: 'status' }
@@ -15,7 +25,7 @@ export default defineEventHandler(async (event) => {
   // finished_at is empty for pending statuses (fine — those still collapse
   // into one placeholder) but distinguishes a genuine re-run reaching the
   // same terminal status from GitLab re-delivering the same webhook.
-  const finishedAt = body?.object_attributes?.finished_at ?? ''
+  const finishedAt = body.object_attributes.finished_at ?? ''
   if (!(await claimDedupe(parsed.pipelineId, parsed.status, finishedAt))) {
     return { ok: true, skipped: 'duplicate' }
   }
