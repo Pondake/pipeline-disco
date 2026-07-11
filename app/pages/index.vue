@@ -9,9 +9,8 @@ const storeBackend = ref<StatusResponse['store'] | null>(null)
 
 const feed = ref<DiscoEvent[]>([])
 const latest = ref<DiscoEvent | null>(null)
-const flash = ref<DiscoEvent | null>(null)
+const { value: flash, show: showFlash } = useAutoDismiss<DiscoEvent>(4000)
 const muted = ref(false)
-let flashTimer: ReturnType<typeof setTimeout> | null = null
 
 const FEED_LIMIT = 30
 
@@ -50,12 +49,6 @@ async function announce(event: DiscoEvent) {
     const text = renderTemplate(template, event)
     setTimeout(() => tts.speak(text, { voice: s.tts.voice, rate: s.tts.rate }), soundSeconds * 1000)
   }
-}
-
-function showFlash(event: DiscoEvent) {
-  flash.value = event
-  if (flashTimer) clearTimeout(flashTimer)
-  flashTimer = setTimeout(() => (flash.value = null), 4000)
 }
 
 function handleEvent(event: DiscoEvent, silent = false) {
@@ -112,6 +105,25 @@ function testSound() {
   playSound(settings.value.sound.success, settings.value.sound.volume)
 }
 
+const toolbarActions = computed(() => [
+  {
+    key: 'demo',
+    label: demo.running.value ? `Demo on · next in ${demo.countdown.value}s` : 'Demo mode',
+    active: demo.running.value,
+    onClick: () => demo.toggle(),
+  },
+  { key: 'test-sound', label: 'Test sound', onClick: testSound },
+  { key: 'simulate-pass', label: 'Simulate pass', onClick: () => simulate('success') },
+  { key: 'simulate-fail', label: 'Simulate fail', onClick: () => simulate('failed') },
+  {
+    key: 'mute',
+    label: muted.value ? 'Muted' : 'Mute',
+    active: muted.value,
+    onClick: () => (muted.value = !muted.value),
+  },
+  { key: 'settings', label: 'Settings', to: '/settings' },
+])
+
 onMounted(async () => {
   await Promise.all([loadSettings(), checkAutoArm()])
   tts.loadVoices()
@@ -123,23 +135,11 @@ onMounted(async () => {
 
 onUnmounted(() => {
   poller.stop()
-  if (flashTimer) clearTimeout(flashTimer)
 })
-
-const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
-const statusWord = (e: DiscoEvent) =>
-  e.status === 'success'
-    ? 'passed'
-    : e.status === 'failed'
-      ? 'failed'
-      : e.status === 'pending'
-        ? 'running'
-        : 'canceled'
-const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 'failed')
 </script>
 
 <template>
-  <main class="flex h-dvh flex-col overflow-hidden px-8 pt-10 pb-4 lg:px-14">
+  <main class="flex h-dvh flex-col overflow-hidden px-4 pt-6 pb-3 sm:px-8 sm:pt-10 sm:pb-4 lg:px-14">
     <ArmAudioOverlay v-if="!armed" />
 
     <!-- Drenched event moment: the whole viewport becomes the outcome. -->
@@ -151,7 +151,7 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
     >
       <div
         v-if="flash"
-        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-6 px-12 text-center"
+        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 px-6 text-center sm:gap-6 sm:px-12"
         :class="
           flash.status === 'success'
             ? 'bg-go-700'
@@ -160,17 +160,19 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
               : 'bg-night-800'
         "
       >
-        <p class="text-4xl font-bold uppercase tracking-widest text-night-50/80">
-          {{ statusWord(flash) }}
+        <p class="text-2xl font-bold uppercase tracking-widest text-night-50/80 sm:text-3xl md:text-4xl">
+          {{ pipelineStatusWord(flash.status) }}
         </p>
-        <h2 class="line-clamp-3 max-w-[24ch] text-7xl font-extrabold leading-tight text-night-50">
+        <h2
+          class="line-clamp-3 max-w-[24ch] text-4xl font-extrabold leading-tight text-night-50 sm:text-5xl md:text-6xl lg:text-7xl"
+        >
           {{ flash.mrTitle || flash.branch }}
         </h2>
-        <p class="flex items-center gap-3 text-3xl text-night-50/80">
+        <p class="flex flex-wrap items-center justify-center gap-3 text-xl text-night-50/80 sm:text-2xl md:text-3xl">
           <!-- Neutral chip on the flood: the viewport already carries the color. -->
-          <span class="rounded-md bg-night-950/35 px-3 py-1 font-semibold text-night-50">
+          <AppBadge size="lg" class="bg-night-950/35 text-night-50">
             {{ flash.project || flash.projectPath }}
-          </span>
+          </AppBadge>
           {{ flash.author }}
         </p>
       </div>
@@ -178,39 +180,29 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
 
     <!-- Now zone -->
     <header class="shrink-0">
-      <div class="flex items-baseline justify-between">
-        <h1 class="text-sm font-semibold uppercase tracking-[0.3em] text-night-600">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h1 class="text-xs font-semibold uppercase tracking-[0.2em] text-night-600 sm:text-sm sm:tracking-[0.3em]">
           Pipeline Disco
         </h1>
-        <span v-if="latest" class="text-sm text-night-600 tabular-nums">
-          last event {{ timeFormat.format(latest.ts) }}
+        <span v-if="latest" class="text-xs text-night-600 tabular-nums sm:text-sm">
+          last event {{ formatEventTime(latest.ts) }}
         </span>
       </div>
 
-      <div v-if="latest" class="mt-6">
+      <div v-if="latest" class="mt-4 sm:mt-6">
         <p
-          class="flex items-center gap-3 text-2xl font-bold uppercase tracking-wide"
-          :class="
-            latest.status === 'success'
-              ? 'text-go-500'
-              : latest.status === 'failed'
-                ? 'text-stop-500'
-                : latest.status === 'pending'
-                  ? 'text-night-600'
-                  : 'text-warn-500'
-          "
+          class="flex items-center gap-3 text-lg font-bold uppercase tracking-wide sm:text-2xl"
+          :class="pipelineStatusTextClass(latest.status)"
         >
-          <span
-            v-if="latest.status === 'pending'"
-            class="size-2.5 shrink-0 animate-pulse-dot rounded-full bg-current"
-            aria-hidden="true"
-          />
-          {{ statusWord(latest) }}
+          <StatusDot v-if="latest.status === 'pending'" size="lg" pulse class="bg-current" />
+          {{ pipelineStatusWord(latest.status) }}
         </p>
-        <p class="mt-1 truncate text-6xl font-extrabold leading-tight text-night-50">
+        <p
+          class="mt-1 line-clamp-2 break-words text-3xl font-extrabold leading-tight text-night-50 sm:line-clamp-1 sm:truncate sm:text-5xl lg:text-6xl"
+        >
           {{ latest.mrTitle || latest.branch }}
         </p>
-        <p class="mt-3 flex items-center gap-3 text-2xl text-night-400">
+        <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-night-400 sm:mt-3 sm:text-2xl">
           <RepoBadge
             :project-path="latest.projectPath || latest.project"
             :project="latest.project"
@@ -218,7 +210,10 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
           />
           {{ latest.author }}
         </p>
-        <p v-if="latest.jobs?.length" class="mt-2 flex items-center gap-3 text-xl">
+        <p
+          v-if="latest.jobs?.length"
+          class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-xl"
+        >
           <PipelineStages :jobs="latest.jobs" :stages="latest.stages" class="text-base" />
           <span
             v-if="latest.status === 'failed' && failedJobs(latest).length"
@@ -233,16 +228,16 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
           </span>
         </p>
       </div>
-      <div v-else class="mt-6">
-        <p class="animate-heartbeat text-6xl font-extrabold leading-tight text-night-600">
+      <div v-else class="mt-4 sm:mt-6">
+        <p class="animate-heartbeat text-3xl font-extrabold leading-tight text-night-600 sm:text-5xl lg:text-6xl">
           All quiet on main
         </p>
-        <p class="mt-2 text-2xl text-night-600">Waiting for the first pipeline</p>
+        <p class="mt-2 text-base text-night-600 sm:text-2xl">Waiting for the first pipeline</p>
       </div>
     </header>
 
     <!-- Ledger -->
-    <section class="mt-10 min-h-0 flex-1 overflow-hidden" aria-label="Recent pipelines">
+    <section class="mt-6 min-h-0 flex-1 overflow-hidden sm:mt-10" aria-label="Recent pipelines">
       <EventFeed :events="feed" @deleted="removeFromFeed" />
     </section>
 
@@ -271,31 +266,33 @@ const failedJobs = (e: DiscoEvent) => (e.jobs ?? []).filter((j) => j.status === 
       <ConnectionStatus :state="poller.connection.value" />
       <StoreStatus :store="storeBackend" />
       <span class="flex-1" />
-      <button
-        class="toolbar-btn"
-        :class="{ 'toolbar-btn-active': demo.running.value }"
-        @click="demo.toggle()"
-      >
-        {{ demo.running.value ? `Demo on · next in ${demo.countdown.value}s` : 'Demo mode' }}
-      </button>
-      <button class="toolbar-btn" @click="testSound">Test sound</button>
-      <button class="toolbar-btn" @click="simulate('success')">Simulate pass</button>
-      <button class="toolbar-btn" @click="simulate('failed')">Simulate fail</button>
-      <button class="toolbar-btn" :class="{ 'toolbar-btn-active': muted }" @click="muted = !muted">
-        {{ muted ? 'Muted' : 'Mute' }}
-      </button>
-      <NuxtLink to="/settings" class="toolbar-btn">Settings</NuxtLink>
+
+      <!-- Full row from sm up; below that the row would wrap into a cramped
+           multi-line grid, so it collapses into a single popover trigger. -->
+      <div class="hidden items-center gap-3 sm:flex">
+        <AppButton
+          v-for="action in toolbarActions"
+          :key="action.key"
+          class="px-3 py-1.5 text-sm"
+          :active="action.active"
+          :to="action.to"
+          @click="action.onClick?.()"
+        >
+          {{ action.label }}
+        </AppButton>
+      </div>
+      <ActionsMenu class="sm:hidden">
+        <AppButton
+          v-for="action in toolbarActions"
+          :key="action.key"
+          class="w-full justify-start px-3 py-2 text-sm"
+          :active="action.active"
+          :to="action.to"
+          @click="action.onClick?.()"
+        >
+          {{ action.label }}
+        </AppButton>
+      </ActionsMenu>
     </footer>
   </main>
 </template>
-
-<style scoped>
-@reference "~/assets/css/main.css";
-
-.toolbar-btn {
-  @apply rounded-md border border-night-800 bg-night-900 px-3 py-1.5 text-sm text-night-200 transition-colors duration-150 hover:border-night-600;
-}
-.toolbar-btn-active {
-  @apply border-disco-500 text-disco-300;
-}
-</style>

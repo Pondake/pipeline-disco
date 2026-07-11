@@ -13,12 +13,13 @@ const style = computed(() => repoChipStyle(props.projectPath))
 </script>
 
 <template>
-  <span
-    class="inline-block max-w-[16ch] truncate rounded-md border align-middle font-semibold"
-    :class="size === 'lg' ? 'px-3 py-1 text-xl' : 'px-2 py-0.5 text-sm'"
+  <AppBadge
+    :size="size === 'lg' ? 'lg' : 'md'"
+    class="max-w-[16ch] border"
+    :class="size === 'lg' ? 'text-xl' : 'text-sm'"
     :style="style"
     :title="projectPath"
   >
     {{ label }}
-  </span>
+  </AppBadge>
 </template>

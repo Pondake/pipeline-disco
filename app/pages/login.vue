@@ -39,13 +39,9 @@ async function submit() {
       />
       <p v-if="error" class="mt-2 text-sm text-stop-500" role="alert">{{ error }}</p>
 
-      <button
-        type="submit"
-        :disabled="busy"
-        class="mt-6 w-full rounded-md bg-disco-500 px-4 py-2.5 font-bold text-night-950 transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
-      >
+      <AppButton type="submit" variant="primary" class="mt-6 w-full px-4 py-2.5" :disabled="busy">
         {{ busy ? 'Checking…' : 'Enter' }}
-      </button>
+      </AppButton>
     </form>
   </main>
 </template>

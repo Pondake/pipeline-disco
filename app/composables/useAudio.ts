@@ -312,6 +312,61 @@ const SYNTHS: Record<string, SynthRecipe> = {
       return 0.15
     },
   },
+  'synth:whoosh': {
+    label: 'Whoosh',
+    play(ctx, out) {
+      slide(
+        ctx,
+        out,
+        'sine',
+        [
+          [200, 0],
+          [2000, 0.35],
+        ],
+        0,
+        0.4,
+        0.35,
+      )
+      noise(ctx, out, 0, 0.4, 'bandpass', 1200, 0.2)
+      return 0.45
+    },
+  },
+  'synth:klaxon': {
+    label: 'Klaxon',
+    play(ctx, out) {
+      for (let i = 0; i < 3; i++) {
+        slide(
+          ctx,
+          out,
+          'sawtooth',
+          [
+            [500, 0],
+            [350, 0.18],
+          ],
+          i * 0.22,
+          0.2,
+          0.35,
+        )
+      }
+      return 0.7
+    },
+  },
+  'synth:robot': {
+    label: 'Robot',
+    play(ctx, out) {
+      const freqs = [440, 440, 587.33, 349.23, 440]
+      freqs.forEach((f, i) => note(ctx, out, 'square', f, i * 0.09, 0.08, 0.22))
+      return 0.55
+    },
+  },
+  'synth:heartbeat': {
+    label: 'Heartbeat',
+    play(ctx, out) {
+      noise(ctx, out, 0, 0.14, 'lowpass', 120, 0.5)
+      noise(ctx, out, 0.22, 0.16, 'lowpass', 100, 0.4)
+      return 0.5
+    },
+  },
 }
 
 // Build-time discovery of user-supplied sounds; keys are relative paths.

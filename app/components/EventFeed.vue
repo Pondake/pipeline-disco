@@ -4,11 +4,6 @@ import type { DiscoEvent } from '#shared/types'
 defineProps<{ events: DiscoEvent[] }>()
 const emit = defineEmits<{ deleted: [id: number] }>()
 
-const timeFormat = new Intl.DateTimeFormat('en-GB', {
-  hour: '2-digit',
-  minute: '2-digit',
-})
-
 const deleting = ref<number | null>(null)
 
 async function removeEvent(e: DiscoEvent) {
@@ -22,30 +17,6 @@ async function removeEvent(e: DiscoEvent) {
   } finally {
     deleting.value = null
   }
-}
-
-function statusWord(e: DiscoEvent) {
-  return e.status === 'success'
-    ? 'passed'
-    : e.status === 'failed'
-      ? 'failed'
-      : e.status === 'pending'
-        ? 'running'
-        : 'canceled'
-}
-
-function statusColor(e: DiscoEvent) {
-  return e.status === 'success'
-    ? 'text-go-500'
-    : e.status === 'failed'
-      ? 'text-stop-500'
-      : e.status === 'pending'
-        ? 'text-night-600'
-        : 'text-warn-500'
-}
-
-function failedJobs(e: DiscoEvent) {
-  return (e.jobs ?? []).filter((j) => j.status === 'failed')
 }
 </script>
 
@@ -62,26 +33,31 @@ function failedJobs(e: DiscoEvent) {
       :key="`${e.demo ? 'd' : 's'}${e.id}`"
       class="group relative border-b border-night-900 py-2.5"
     >
-      <div class="grid grid-cols-[4rem_7rem_1fr_auto] items-baseline gap-x-4 text-lg">
-        <span class="text-night-600 tabular-nums">{{ timeFormat.format(e.ts) }}</span>
-        <span class="font-bold uppercase tracking-wide" :class="statusColor(e)"
-          ><span
+      <div class="feed-row items-baseline gap-x-4 gap-y-1 text-base sm:text-lg">
+        <span class="feed-row-time text-night-600 tabular-nums">{{ formatEventTime(e.ts) }}</span>
+        <span
+          class="feed-row-status font-bold uppercase tracking-wide"
+          :class="pipelineStatusTextClass(e.status)"
+          ><StatusDot
             v-if="e.status === 'pending'"
-            class="mr-2 inline-block size-1.5 animate-pulse-dot rounded-full bg-current align-[0.15em]"
-            aria-hidden="true"
-          />{{ statusWord(e) }}</span
+            size="sm"
+            pulse
+            class="mr-2 bg-current align-[0.15em]"
+          />{{ pipelineStatusWord(e.status) }}</span
         >
-        <span class="flex min-w-0 items-baseline gap-2.5">
+        <span class="feed-row-title flex min-w-0 flex-wrap items-baseline gap-2.5">
           <RepoBadge :project-path="e.projectPath || e.project" :project="e.project" />
           <span class="truncate text-night-50">{{ e.mrTitle || e.branch }}</span>
           <PipelineStages v-if="e.jobs?.length" :jobs="e.jobs" :stages="e.stages" />
-          <span
+          <AppBadge
             v-if="e.demo"
-            class="shrink-0 rounded bg-night-800 px-1.5 py-0.5 text-xs font-semibold uppercase text-night-400"
-            >demo</span
+            size="sm"
+            class="shrink-0 bg-night-800 text-xs uppercase text-night-400"
           >
+            demo
+          </AppBadge>
         </span>
-        <span class="text-night-600">{{ e.author }}</span>
+        <span class="feed-row-author truncate text-night-600">{{ e.author }}</span>
       </div>
 
       <!-- Fade masks the author column so the delete button never collides
@@ -90,9 +66,9 @@ function failedJobs(e: DiscoEvent) {
         class="pointer-events-none absolute inset-y-0 right-0 w-36 bg-gradient-to-l from-night-950 from-35% to-transparent opacity-0 transition-opacity duration-150 group-hover:opacity-100"
         aria-hidden="true"
       />
-      <button
-        type="button"
-        class="delete-btn absolute right-0 top-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100 disabled:pointer-events-none disabled:opacity-30"
+      <AppButton
+        variant="danger"
+        class="absolute right-0 top-1/2 -translate-y-1/2 px-2.5 py-1 text-sm opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100"
         :disabled="deleting === e.id"
         :aria-label="`Delete event: ${e.mrTitle || e.branch}`"
         title="Delete"
@@ -108,14 +84,14 @@ function failedJobs(e: DiscoEvent) {
           />
         </svg>
         Delete
-      </button>
+      </AppButton>
 
       <!-- Always-on sub-row for failed pipelines with hard job failures: a
            ledger sub-line, not a card/modal, no interaction required (this
            board typically runs on a kiosk with no mouse/touch). -->
       <div
         v-if="e.status === 'failed' && failedJobs(e).length"
-        class="mt-1.5 pl-[11rem] text-base text-night-400"
+        class="mt-1.5 flex flex-wrap text-sm text-night-400 sm:pl-[11rem] sm:text-base"
       >
         <span class="text-stop-500">failed:</span>
         <span
@@ -132,9 +108,40 @@ function failedJobs(e: DiscoEvent) {
 </template>
 
 <style scoped>
-@reference "~/assets/css/main.css";
+/* Below sm, the time/status/title/author row has nowhere to put a fixed
+   4-column grid — it stacks into two lines instead of squeezing columns
+   until they overlap. */
+.feed-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'status time'
+    'title title'
+    'author author';
+}
 
-.delete-btn {
-  @apply flex items-center gap-1.5 rounded-md border border-night-800 bg-night-900 px-2.5 py-1 text-sm text-night-200 transition-colors duration-150 hover:border-stop-500 hover:text-stop-500;
+.feed-row-time {
+  grid-area: time;
+  justify-self: end;
+}
+.feed-row-status {
+  grid-area: status;
+}
+.feed-row-title {
+  grid-area: title;
+}
+.feed-row-author {
+  grid-area: author;
+}
+
+@media (min-width: 640px) {
+  .feed-row {
+    grid-template-columns: 4rem 7rem 1fr auto;
+    grid-template-areas: 'time status title author';
+  }
+
+  .feed-row-time {
+    justify-self: start;
+  }
 }
 </style>

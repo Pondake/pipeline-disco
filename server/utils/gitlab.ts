@@ -1,20 +1,29 @@
+import type { PipelineEvent } from 'gitlab-event-types'
 import type { DiscoJob, IncomingEvent, JobStatus, PipelineStatus, Settings } from '#shared/types'
 import { matchesAny } from '#shared/utils/match'
 
-/** Shape of the fields we read from a GitLab pipeline webhook payload; the rest is ignored. */
-interface GitlabWebhookBody {
-  object_attributes?: {
-    id?: number
-    status?: string
-    ref?: string
-    source?: string
-    duration?: number
-    stages?: string[]
-  }
+/**
+ * `gitlab-event-types` is the closest thing to an authoritative TS source for
+ * GitLab's webhook shapes — GitLab doesn't publish its own package.
+ * object_attributes, builds[], project, and user match GitLab's own docs
+ * (https://docs.gitlab.com/user/project/integrations/webhook_events/)
+ * closely, so those come straight from the library; patched below only for
+ * two confirmed-real-but-missing fields, object_attributes.source and
+ * builds[].allow_failure. `merge_request` is the one exception: the library
+ * reuses the full merge-request-event shape for it, which doesn't match what
+ * a pipeline event actually sends (a stripped payload that's missing `url`,
+ * which the docs confirm IS sent) — so that field stays hand-shaped rather
+ * than inherited, verified line-by-line against GitLab's example payload
+ * (also how we confirmed object_attributes has no `updated_at` — pending
+ * statuses genuinely have no stable per-run timestamp to dedupe against).
+ */
+export type GitlabPipelineEvent = Omit<
+  PipelineEvent,
+  'object_attributes' | 'builds' | 'merge_request'
+> & {
+  object_attributes: PipelineEvent['object_attributes'] & { source?: string }
+  builds: Array<PipelineEvent['builds'][number] & { allow_failure?: boolean }>
   merge_request?: { title?: string; iid?: number; url?: string }
-  project?: { name?: string; path_with_namespace?: string; id?: number }
-  user?: { name?: string }
-  builds?: Array<{ name: string; stage: string; status: string; allow_failure?: boolean }>
 }
 
 const TERMINAL_STATUSES: PipelineStatus[] = ['success', 'failed', 'canceled']
@@ -43,12 +52,12 @@ function normalizeJobStatus(raw: string): JobStatus {
 // builds[] is only reliable once the pipeline has resolved (GitLab fires the
 // pipeline webhook on pipeline-level transitions, not per job), so this is
 // only called for terminal statuses.
-function extractJobs(builds: GitlabWebhookBody['builds']): DiscoJob[] | undefined {
+function extractJobs(builds: GitlabPipelineEvent['builds'] | undefined): DiscoJob[] | undefined {
   if (!Array.isArray(builds) || builds.length === 0) return undefined
   return builds.map((b) => ({
     name: b.name,
     stage: b.stage,
-    status: normalizeJobStatus(b.status as string),
+    status: normalizeJobStatus(b.status),
     ...(b.allow_failure ? { allowFailure: true } : {}),
   }))
 }
@@ -57,10 +66,12 @@ function extractJobs(builds: GitlabWebhookBody['builds']): DiscoJob[] | undefine
  * Extract a DiscoEvent from a GitLab pipeline webhook payload.
  * Returns null for statuses we never react to (skipped, manual, scheduled, ...).
  */
-export function parsePipelineEvent(body: GitlabWebhookBody): IncomingEvent | null {
+export function parsePipelineEvent(body: GitlabPipelineEvent): IncomingEvent | null {
+  // Still guarded at runtime despite the type saying these are required —
+  // the type is a hint for untrusted external JSON, not a guarantee.
   const attrs = body?.object_attributes
   if (!attrs || typeof attrs.id !== 'number') return null
-  const rawStatus = attrs.status as string
+  const rawStatus = attrs.status
   const status: PipelineStatus | null = TERMINAL_STATUSES.includes(rawStatus as PipelineStatus)
     ? (rawStatus as PipelineStatus)
     : PENDING_GITLAB_STATUSES.includes(rawStatus)

@@ -7,8 +7,9 @@ const { save, saving } = useSettings()
 // Edit a local draft; nothing applies until Save.
 const draft = ref<Settings>(defaultSettings())
 const loaded = ref(false)
-const toast = ref<{ kind: 'ok' | 'error'; text: string } | null>(null)
-let toastTimer: ReturnType<typeof setTimeout> | null = null
+const { value: toast, show: showToastValue } = useAutoDismiss<{ kind: 'ok' | 'error'; text: string }>(
+  3500,
+)
 
 onMounted(async () => {
   draft.value = await $fetch<Settings>('/api/settings')
@@ -16,9 +17,7 @@ onMounted(async () => {
 })
 
 function showToast(kind: 'ok' | 'error', text: string) {
-  toast.value = { kind, text }
-  if (toastTimer) clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => (toast.value = null), 3500)
+  showToastValue({ kind, text })
 }
 
 async function submit() {
@@ -86,13 +85,9 @@ async function submit() {
       </section>
 
       <div class="flex items-center gap-4 border-t border-night-900 pt-6">
-        <button
-          type="submit"
-          :disabled="saving"
-          class="rounded-md bg-disco-500 px-6 py-2.5 font-bold text-night-950 transition-opacity duration-150 hover:opacity-90 disabled:opacity-50"
-        >
+        <AppButton type="submit" variant="primary" class="px-6 py-2.5" :disabled="saving">
           {{ saving ? 'Saving…' : 'Save settings' }}
-        </button>
+        </AppButton>
         <p
           v-if="toast"
           role="status"

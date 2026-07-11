@@ -31,33 +31,17 @@ const ignore = defineModel<IgnoreSettings>({ required: true })
         placeholder="Draft:*"
       />
 
-      <label class="flex items-center gap-3">
-        <input v-model="ignore.onlyMrPipelines" type="checkbox" class="checkbox" />
-        <span>
-          <span class="block font-semibold text-night-200">Merge request pipelines only</span>
-          <span class="block text-sm text-night-400"
-            >Ignore push, schedule, and manual pipelines.</span
-          >
-        </span>
-      </label>
+      <CheckboxField
+        v-model="ignore.onlyMrPipelines"
+        label="Merge request pipelines only"
+        description="Ignore push, schedule, and manual pipelines."
+      />
 
-      <label class="flex items-center gap-3">
-        <input v-model="ignore.reactToCanceled" type="checkbox" class="checkbox" />
-        <span>
-          <span class="block font-semibold text-night-200">Announce canceled pipelines</span>
-          <span class="block text-sm text-night-400"
-            >Off by default; cancels are usually noise.</span
-          >
-        </span>
-      </label>
+      <CheckboxField
+        v-model="ignore.reactToCanceled"
+        label="Announce canceled pipelines"
+        description="Off by default; cancels are usually noise."
+      />
     </div>
   </section>
 </template>
-
-<style scoped>
-@reference "~/assets/css/main.css";
-
-.checkbox {
-  @apply size-4 accent-disco-500;
-}
-</style>

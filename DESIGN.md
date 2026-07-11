@@ -57,4 +57,5 @@ Tabular numerals (`font-variant-numeric: tabular-nums`) for times and durations.
 - Buttons: one shape everywhere (rounded-md, night-900 ground, night-800 border, disco-500 for primary). States: default, hover, focus-visible ring (disco-500), active, disabled.
 - Feed: typographic rows (ledger), never cards. Status shown as word + color.
 - Forms: styled native elements; labels above inputs; section headings with whitespace separation, no boxed cards.
-- Bans (absolute): side-stripe borders, gradient text, glassmorphism, hero-metric tiles, identical card grids, modals.
+- Bans (absolute) on the wallboard (`/`, the event feed, the flood): side-stripe borders, gradient text, glassmorphism, hero-metric tiles, identical card grids, modals. This is a kiosk display; nothing may block it or demand interaction.
+- Settings (`/settings`) is a normal admin form, not the kiosk surface — a picker dialog (e.g. the sound picker) is fine there when a control needs more space than a row allows. Keep it to the same button/color/motion vocabulary as everything else; still no glassmorphism or gradient text.
