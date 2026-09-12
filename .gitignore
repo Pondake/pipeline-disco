@@ -10,3 +10,11 @@ dist
 .vercel
 *.log
 .DS_Store
+
+# Backlog hoort niet in deze repo
+/BACKLOG.md
+/backlog.md
+/docs/BACKLOG.md
+/docs/backlog.md
+/docs/backlog-*.md
+/docs/FEATURE_BACKLOG.md

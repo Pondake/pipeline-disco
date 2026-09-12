@@ -88,3 +88,12 @@ Unset `APP_PASSWORD` means: auth disabled in dev, 503 in production.
   and DESIGN.md carry the design system context; consult them before UI work.
 - Webhook handler always answers 2xx after the token check so GitLab never
   retry-storms; rejected events return `{ ok: true, skipped: <reason> }`.
+
+## Backlog
+
+The backlog is **not in this repo**; it lives in the Obsidian vault as `Pipeline Disco backlog.md` in
+the project folder, found via the `repo:` field in its frontmatter, which points at this checkout. Read it there
+before starting work and keep it up to date there.
+
+Do not create `docs/backlog.md`, `BACKLOG.md` or anything like it here — that
+path is gitignored, so the file would silently get lost.
