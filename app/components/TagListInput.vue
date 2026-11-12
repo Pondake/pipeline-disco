@@ -1,14 +1,14 @@
 <template>
   <div>
-    <label :for="inputId" class="block text-sm font-semibold text-night-200">{{ label }}</label>
-    <p v-if="hint" class="mt-0.5 text-sm text-night-600">{{ hint }}</p>
+    <label :for="inputId" class="text-night-200 block text-sm font-semibold">{{ label }}</label>
+    <p v-if="hint" class="text-night-600 mt-0.5 text-sm">{{ hint }}</p>
     <div class="mt-2 flex gap-2">
       <input
         :id="inputId"
         v-model="draft"
         type="text"
         :placeholder="placeholder"
-        class="flex-1 rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50 placeholder:text-night-600"
+        class="border-night-800 bg-night-900 text-night-50 placeholder:text-night-600 flex-1 rounded-md border px-3 py-2"
         @keydown.enter.prevent="add"
       />
       <app-button class="px-4 text-sm font-semibold" @click="add"> Add </app-button>
@@ -17,12 +17,12 @@
       <li
         v-for="tag in tags"
         :key="tag"
-        class="flex items-center gap-1.5 rounded-md bg-night-800 py-1 pr-1.5 pl-2.5 text-sm text-night-200"
+        class="bg-night-800 text-night-200 flex items-center gap-1.5 rounded-md py-1 pr-1.5 pl-2.5 text-sm"
       >
         {{ tag }}
         <button
           type="button"
-          class="cursor-pointer rounded px-1 text-night-400 transition-colors duration-150 hover:text-stop-500"
+          class="text-night-400 hover:text-stop-500 cursor-pointer rounded px-1 transition-colors duration-150"
           :aria-label="`Remove ${tag}`"
           @click="remove(tag)"
         >

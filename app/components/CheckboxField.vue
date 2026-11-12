@@ -2,10 +2,10 @@
   <label class="flex items-center gap-3">
     <input v-model="model" type="checkbox" class="checkbox" />
     <span v-if="description">
-      <span class="block font-semibold text-night-200">{{ label }}</span>
-      <span class="block text-sm text-night-400">{{ description }}</span>
+      <span class="text-night-200 block font-semibold">{{ label }}</span>
+      <span class="text-night-400 block text-sm">{{ description }}</span>
     </span>
-    <span v-else class="font-semibold text-night-200">{{ label }}</span>
+    <span v-else class="text-night-200 font-semibold">{{ label }}</span>
   </label>
 </template>
 
@@ -18,6 +18,6 @@ defineProps<{ label: string; description?: string }>()
 @reference "~/assets/css/main.css";
 
 .checkbox {
-  @apply size-4 cursor-pointer accent-disco-500;
+  @apply accent-disco-500 size-4 cursor-pointer;
 }
 </style>

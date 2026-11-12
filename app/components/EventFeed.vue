@@ -9,12 +9,12 @@
     <li
       v-for="e in events"
       :key="`${e.demo ? 'd' : 's'}${e.id}`"
-      class="group relative border-b border-night-900 py-2.5"
+      class="group border-night-900 relative border-b py-2.5"
     >
       <div class="feed-row items-baseline gap-x-4 gap-y-1 text-base sm:text-lg">
         <span class="feed-row-time text-night-600 tabular-nums">{{ formatEventTime(e.ts) }}</span>
         <span
-          class="feed-row-status font-bold uppercase tracking-wide"
+          class="feed-row-status font-bold tracking-wide uppercase"
           :class="pipelineStatusTextClass(e.status)"
           ><status-dot
             v-if="e.status === 'pending'"
@@ -25,28 +25,28 @@
         >
         <span class="feed-row-title flex min-w-0 flex-wrap items-baseline gap-2.5">
           <repo-badge :project-path="e.projectPath || e.project" :project="e.project" />
-          <span class="truncate text-night-50">{{ e.mrTitle || e.branch }}</span>
+          <span class="text-night-50 truncate">{{ e.mrTitle || e.branch }}</span>
           <pipeline-stages v-if="e.jobs?.length" :jobs="e.jobs" :stages="e.stages" />
           <app-badge
             v-if="e.demo"
             size="sm"
-            class="shrink-0 bg-night-800 text-xs uppercase text-night-400"
+            class="bg-night-800 text-night-400 shrink-0 text-xs uppercase"
           >
             demo
           </app-badge>
         </span>
-        <span class="feed-row-author truncate text-night-600">{{ e.author }}</span>
+        <span class="feed-row-author text-night-600 truncate">{{ e.author }}</span>
       </div>
 
       <!-- Fade masks the author column so the delete button never collides
            with it; sits above the row content, below the button itself. -->
       <div
-        class="pointer-events-none absolute inset-y-0 right-0 w-36 bg-gradient-to-l from-night-950 from-35% to-transparent opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+        class="from-night-950 pointer-events-none absolute inset-y-0 right-0 w-36 bg-gradient-to-l from-35% to-transparent opacity-0 transition-opacity duration-150 group-hover:opacity-100"
         aria-hidden="true"
       />
       <app-button
         variant="danger"
-        class="absolute right-0 top-1/2 -translate-y-1/2 px-2.5 py-1 text-sm opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100"
+        class="absolute top-1/2 right-0 -translate-y-1/2 px-2.5 py-1 text-sm opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-visible:opacity-100"
         :disabled="deleting === e.id"
         :aria-label="`Delete event: ${e.mrTitle || e.branch}`"
         title="Delete"
@@ -69,7 +69,7 @@
            board typically runs on a kiosk with no mouse/touch). -->
       <div
         v-if="e.status === 'failed' && failedJobs(e).length"
-        class="mt-1.5 flex flex-wrap text-sm text-night-400 sm:pl-[11rem] sm:text-base"
+        class="text-night-400 mt-1.5 flex flex-wrap text-sm sm:pl-[11rem] sm:text-base"
       >
         <span class="text-stop-500">failed:</span>
         <span

@@ -1,5 +1,5 @@
 <template>
-  <span class="flex items-center gap-2 text-sm text-night-400" :title="label">
+  <span class="text-night-400 flex items-center gap-2 text-sm" :title="label">
     <status-dot size="md" :pulse="pulse" :class="dotClass" />
     {{ label }}
   </span>

@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-night-950">
-    <p class="text-lg text-night-400">Pipeline Disco needs one click to unlock the speakers.</p>
+  <div class="bg-night-950 fixed inset-0 z-50 flex flex-col items-center justify-center gap-8">
+    <p class="text-night-400 text-lg">Pipeline Disco needs one click to unlock the speakers.</p>
     <app-button
       variant="primary"
       class="px-10 py-5 text-2xl hover:scale-105 active:scale-95"
@@ -8,9 +8,9 @@
     >
       Start the disco
     </app-button>
-    <p class="max-w-md text-center text-sm text-night-600">
+    <p class="text-night-600 max-w-md text-center text-sm">
       Running a kiosk? Launch Chromium with
-      <code class="rounded bg-night-900 px-1.5 py-0.5 text-night-400"
+      <code class="bg-night-900 text-night-400 rounded px-1.5 py-0.5"
         >--autoplay-policy=no-user-gesture-required</code
       >
       and this screen skips itself.

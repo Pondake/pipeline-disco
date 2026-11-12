@@ -1,5 +1,7 @@
 <template>
-  <main class="flex h-dvh flex-col overflow-hidden px-4 pt-6 pb-3 sm:px-8 sm:pt-10 sm:pb-4 lg:px-14">
+  <main
+    class="flex h-dvh flex-col overflow-hidden px-4 pt-6 pb-3 sm:px-8 sm:pt-10 sm:pb-4 lg:px-14"
+  >
     <arm-audio-overlay v-if="!armed" />
 
     <!-- Drenched event moment: the whole viewport becomes the outcome. -->
@@ -20,15 +22,19 @@
               : 'bg-night-800'
         "
       >
-        <p class="text-2xl font-bold uppercase tracking-widest text-night-50/80 sm:text-3xl md:text-4xl">
+        <p
+          class="text-night-50/80 text-2xl font-bold tracking-widest uppercase sm:text-3xl md:text-4xl"
+        >
           {{ pipelineStatusWord(flash.status) }}
         </p>
         <h2
-          class="line-clamp-3 max-w-[24ch] text-4xl font-extrabold leading-tight text-night-50 sm:text-5xl md:text-6xl lg:text-7xl"
+          class="text-night-50 line-clamp-3 max-w-[24ch] text-4xl leading-tight font-extrabold sm:text-5xl md:text-6xl lg:text-7xl"
         >
           {{ flash.mrTitle || flash.branch }}
         </h2>
-        <p class="flex flex-wrap items-center justify-center gap-3 text-xl text-night-50/80 sm:text-2xl md:text-3xl">
+        <p
+          class="text-night-50/80 flex flex-wrap items-center justify-center gap-3 text-xl sm:text-2xl md:text-3xl"
+        >
           <!-- Neutral chip on the flood: the viewport already carries the color. -->
           <app-badge size="lg" class="bg-night-950/35 text-night-50">
             {{ flash.project || flash.projectPath }}
@@ -41,28 +47,32 @@
     <!-- Now zone -->
     <header class="shrink-0">
       <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h1 class="text-xs font-semibold uppercase tracking-[0.2em] text-night-600 sm:text-sm sm:tracking-[0.3em]">
+        <h1
+          class="text-night-600 text-xs font-semibold tracking-[0.2em] uppercase sm:text-sm sm:tracking-[0.3em]"
+        >
           Pipeline Disco
         </h1>
-        <span v-if="latest" class="text-xs text-night-600 tabular-nums sm:text-sm">
+        <span v-if="latest" class="text-night-600 text-xs tabular-nums sm:text-sm">
           last event {{ formatEventTime(latest.ts) }}
         </span>
       </div>
 
       <div v-if="latest" class="mt-4 sm:mt-6">
         <p
-          class="flex items-center gap-3 text-lg font-bold uppercase tracking-wide sm:text-2xl"
+          class="flex items-center gap-3 text-lg font-bold tracking-wide uppercase sm:text-2xl"
           :class="pipelineStatusTextClass(latest.status)"
         >
           <status-dot v-if="latest.status === 'pending'" size="lg" pulse class="bg-current" />
           {{ pipelineStatusWord(latest.status) }}
         </p>
         <p
-          class="mt-1 line-clamp-2 break-words text-3xl font-extrabold leading-tight text-night-50 sm:line-clamp-1 sm:truncate sm:text-5xl lg:text-6xl"
+          class="text-night-50 mt-1 line-clamp-2 text-3xl leading-tight font-extrabold break-words sm:line-clamp-1 sm:truncate sm:text-5xl lg:text-6xl"
         >
           {{ latest.mrTitle || latest.branch }}
         </p>
-        <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-night-400 sm:mt-3 sm:text-2xl">
+        <p
+          class="text-night-400 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-base sm:mt-3 sm:text-2xl"
+        >
           <repo-badge
             :project-path="latest.projectPath || latest.project"
             :project="latest.project"
@@ -89,10 +99,12 @@
         </p>
       </div>
       <div v-else class="mt-4 sm:mt-6">
-        <p class="animate-heartbeat text-3xl font-extrabold leading-tight text-night-600 sm:text-5xl lg:text-6xl">
+        <p
+          class="animate-heartbeat text-night-600 text-3xl leading-tight font-extrabold sm:text-5xl lg:text-6xl"
+        >
           All quiet on main
         </p>
-        <p class="mt-2 text-base text-night-600 sm:text-2xl">Waiting for the first pipeline</p>
+        <p class="text-night-600 mt-2 text-base sm:text-2xl">Waiting for the first pipeline</p>
       </div>
     </header>
 
@@ -111,13 +123,13 @@
            decoration. No accent line outside 'ok' — a stalled retry has no
            meaningful countdown, so the track goes back to plain and static. -->
       <div
-        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-night-900"
+        class="bg-night-900 pointer-events-none absolute inset-x-0 top-0 h-px"
         aria-hidden="true"
       />
       <div
         v-if="poller.connection.value === 'ok'"
         :key="poller.pollCycle.value"
-        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-disco-500/50"
+        class="bg-disco-500/50 pointer-events-none absolute inset-x-0 top-0 h-px"
         :style="{
           animation: `poll-countdown ${poller.nextPollMs.value || 4000}ms linear 1 forwards`,
         }"

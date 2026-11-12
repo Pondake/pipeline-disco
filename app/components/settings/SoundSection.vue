@@ -1,23 +1,24 @@
 <template>
   <section>
-    <h2 class="text-xl font-bold text-night-50">Sounds</h2>
-    <p class="mt-1 text-sm text-night-400">
+    <h2 class="text-night-50 text-xl font-bold">Sounds</h2>
+    <p class="text-night-400 mt-1 text-sm">
       Built-in synth sounds work with zero files. Drop .mp3/.wav/.ogg files into
-      <code class="rounded bg-night-900 px-1 py-0.5">app/assets/sounds/</code> and redeploy to add
+      <code class="bg-night-900 rounded px-1 py-0.5">app/assets/sounds/</code> and redeploy to add
       your own.
     </p>
 
-    <checkbox-field
-      v-model="sound.enabled"
-      label="Play a sound on pipeline events"
-      class="mt-6"
-    />
+    <checkbox-field v-model="sound.enabled" label="Play a sound on pipeline events" class="mt-6" />
 
     <div
       class="mt-6 flex flex-col gap-4"
       :class="{ 'pointer-events-none opacity-40': !sound.enabled }"
     >
-      <settings-row v-for="o in outcomes" :key="o.key" :label="o.label" :input-id="`sound-${o.key}`">
+      <settings-row
+        v-for="o in outcomes"
+        :key="o.key"
+        :label="o.label"
+        :input-id="`sound-${o.key}`"
+      >
         <sound-picker
           :id="`sound-${o.key}`"
           v-model="sound[o.key]"
@@ -36,9 +37,9 @@
           min="0"
           max="1"
           step="0.05"
-          class="cursor-pointer accent-disco-500"
+          class="accent-disco-500 cursor-pointer"
         />
-        <span class="w-10 text-right text-sm text-night-400 tabular-nums">
+        <span class="text-night-400 w-10 text-right text-sm tabular-nums">
           {{ Math.round(sound.volume * 100) }}%
         </span>
       </settings-row>

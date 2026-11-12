@@ -44,7 +44,7 @@ function closeMenu() {
 }
 
 .actions-menu-panel {
-  @apply m-0 w-56 gap-1 rounded-md border border-night-800 bg-night-900 p-2;
+  @apply border-night-800 bg-night-900 m-0 w-56 gap-1 rounded-md border p-2;
   position: fixed;
   inset: auto 1rem 4.75rem auto;
   overflow: visible;

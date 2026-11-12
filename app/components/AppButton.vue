@@ -37,7 +37,8 @@ withDefaults(
 
 const variantClass = {
   default: 'border border-night-800 bg-night-900 text-night-200 hover:border-night-600',
-  danger: 'border border-night-800 bg-night-900 text-night-200 hover:border-stop-500 hover:text-stop-500',
+  danger:
+    'border border-night-800 bg-night-900 text-night-200 hover:border-stop-500 hover:text-stop-500',
   primary: 'bg-disco-500 font-bold text-night-950 hover:opacity-90',
 } as const
 </script>

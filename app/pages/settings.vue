@@ -1,10 +1,10 @@
 <template>
   <main class="mx-auto max-w-2xl px-6 py-12">
     <header class="flex items-baseline justify-between">
-      <h1 class="text-3xl font-extrabold text-night-50">Settings</h1>
-      <nuxt-link to="/" class="text-sm text-disco-300 hover:underline">Back to the board</nuxt-link>
+      <h1 class="text-night-50 text-3xl font-extrabold">Settings</h1>
+      <nuxt-link to="/" class="text-disco-300 text-sm hover:underline">Back to the board</nuxt-link>
     </header>
-    <p class="mt-2 text-night-400">
+    <p class="text-night-400 mt-2">
       Shared across every device: the wallboard, your laptop, all of it.
     </p>
 
@@ -14,16 +14,16 @@
       <settings-tts-section v-model="draft.tts" />
 
       <section>
-        <h2 class="text-xl font-bold text-night-50">Polling</h2>
-        <p class="mt-1 text-sm text-night-400">
+        <h2 class="text-night-50 text-xl font-bold">Polling</h2>
+        <p class="text-night-400 mt-1 text-sm">
           How often open tabs check for new events. Slower polling saves Upstash free-tier quota.
         </p>
         <div class="mt-6 grid grid-cols-2 gap-4">
           <div>
-            <label for="activeMs" class="block text-sm font-semibold text-night-200">
+            <label for="activeMs" class="text-night-200 block text-sm font-semibold">
               Active interval (ms)
             </label>
-            <p class="mt-0.5 text-sm text-night-600">Used for 10 min after an event.</p>
+            <p class="text-night-600 mt-0.5 text-sm">Used for 10 min after an event.</p>
             <input
               id="activeMs"
               v-model.number="draft.polling.activeMs"
@@ -31,14 +31,14 @@
               min="2000"
               max="60000"
               step="500"
-              class="mt-2 w-full rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
+              class="border-night-800 bg-night-900 text-night-50 mt-2 w-full rounded-md border px-3 py-2"
             />
           </div>
           <div>
-            <label for="idleMs" class="block text-sm font-semibold text-night-200">
+            <label for="idleMs" class="text-night-200 block text-sm font-semibold">
               Idle interval (ms)
             </label>
-            <p class="mt-0.5 text-sm text-night-600">Used when things are quiet.</p>
+            <p class="text-night-600 mt-0.5 text-sm">Used when things are quiet.</p>
             <input
               id="idleMs"
               v-model.number="draft.polling.idleMs"
@@ -46,13 +46,13 @@
               min="5000"
               max="120000"
               step="1000"
-              class="mt-2 w-full rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
+              class="border-night-800 bg-night-900 text-night-50 mt-2 w-full rounded-md border px-3 py-2"
             />
           </div>
         </div>
       </section>
 
-      <div class="flex items-center gap-4 border-t border-night-900 pt-6">
+      <div class="border-night-900 flex items-center gap-4 border-t pt-6">
         <app-button type="submit" variant="primary" class="px-6 py-2.5" :disabled="saving">
           {{ saving ? 'Saving…' : 'Save settings' }}
         </app-button>
@@ -66,7 +66,7 @@
         </p>
       </div>
     </form>
-    <p v-else class="mt-12 text-night-400">Loading settings…</p>
+    <p v-else class="text-night-400 mt-12">Loading settings…</p>
   </main>
 </template>
 
@@ -80,9 +80,10 @@ const { save, saving } = useSettings()
 // Edit a local draft; nothing applies until Save.
 const draft = ref<Settings>(defaultSettings())
 const loaded = ref(false)
-const { value: toast, show: showToastValue } = useAutoDismiss<{ kind: 'ok' | 'error'; text: string }>(
-  3500,
-)
+const { value: toast, show: showToastValue } = useAutoDismiss<{
+  kind: 'ok' | 'error'
+  text: string
+}>(3500)
 
 onMounted(async () => {
   draft.value = await $fetch<Settings>('/api/settings')

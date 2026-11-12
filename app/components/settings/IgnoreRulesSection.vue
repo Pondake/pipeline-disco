@@ -1,7 +1,7 @@
 <template>
   <section>
-    <h2 class="text-xl font-bold text-night-50">Ignore rules</h2>
-    <p class="mt-1 text-sm text-night-400">
+    <h2 class="text-night-50 text-xl font-bold">Ignore rules</h2>
+    <p class="text-night-400 mt-1 text-sm">
       Matching pipelines are dropped at ingest: no sound, no feed entry.
     </p>
 

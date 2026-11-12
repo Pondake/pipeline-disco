@@ -1,10 +1,10 @@
 <template>
   <main class="flex h-dvh items-center justify-center px-6">
     <form class="w-full max-w-sm" @submit.prevent="submit">
-      <h1 class="text-3xl font-extrabold text-night-50">Pipeline Disco</h1>
-      <p class="mt-2 text-night-400">Passing pipelines, out loud.</p>
+      <h1 class="text-night-50 text-3xl font-extrabold">Pipeline Disco</h1>
+      <p class="text-night-400 mt-2">Passing pipelines, out loud.</p>
 
-      <label for="password" class="mt-10 block text-sm font-semibold text-night-200">
+      <label for="password" class="text-night-200 mt-10 block text-sm font-semibold">
         Password
       </label>
       <input
@@ -14,10 +14,10 @@
         autocomplete="current-password"
         autofocus
         required
-        class="mt-2 w-full rounded-md border border-night-800 bg-night-900 px-3 py-2.5 text-night-50 placeholder:text-night-600"
+        class="border-night-800 bg-night-900 text-night-50 placeholder:text-night-600 mt-2 w-full rounded-md border px-3 py-2.5"
         placeholder="••••••••"
       />
-      <p v-if="error" class="mt-2 text-sm text-stop-500" role="alert">{{ error }}</p>
+      <p v-if="error" class="text-stop-500 mt-2 text-sm" role="alert">{{ error }}</p>
 
       <app-button type="submit" variant="primary" class="mt-6 w-full px-4 py-2.5" :disabled="busy">
         {{ busy ? 'Checking…' : 'Enter' }}

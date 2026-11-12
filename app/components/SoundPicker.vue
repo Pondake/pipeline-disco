@@ -2,13 +2,13 @@
   <button
     type="button"
     v-bind="$attrs"
-    class="flex w-full cursor-pointer items-center gap-2 rounded-md border border-night-800 bg-night-900 px-3 py-2 text-left text-night-50 transition-colors duration-150 hover:border-night-600"
+    class="border-night-800 bg-night-900 text-night-50 hover:border-night-600 flex w-full cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-left transition-colors duration-150"
     :aria-label="`${label}: ${current?.label}. Choose a sound.`"
     @click="openPicker"
   >
-    <icon :name="soundIcon(modelValue)" class="size-5 shrink-0 text-night-400" />
+    <icon :name="soundIcon(modelValue)" class="text-night-400 size-5 shrink-0" />
     <span class="flex-1 truncate">{{ current?.label }}</span>
-    <icon name="tabler:chevron-down" class="size-4 shrink-0 text-night-600" />
+    <icon name="tabler:chevron-down" class="text-night-600 size-4 shrink-0" />
   </button>
 
   <teleport to="body">
@@ -20,7 +20,7 @@
     >
       <div
         v-if="open"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-night-950/70 p-6"
+        class="bg-night-950/70 fixed inset-0 z-50 flex items-center justify-center p-6"
         @click.self="cancel"
         @keydown.esc="cancel"
       >
@@ -29,14 +29,18 @@
           aria-modal="true"
           :aria-labelledby="titleId"
           tabindex="-1"
-          class="flex max-h-[80vh] w-full max-w-xl flex-col rounded-md border border-night-800 bg-night-900"
+          class="border-night-800 bg-night-900 flex max-h-[80vh] w-full max-w-xl flex-col rounded-md border"
           @keydown.esc="cancel"
         >
-          <header class="flex shrink-0 items-center justify-between border-b border-night-800 px-5 py-4">
-            <h2 :id="titleId" class="text-lg font-bold text-night-50">Choose a sound — {{ label }}</h2>
+          <header
+            class="border-night-800 flex shrink-0 items-center justify-between border-b px-5 py-4"
+          >
+            <h2 :id="titleId" class="text-night-50 text-lg font-bold">
+              Choose a sound — {{ label }}
+            </h2>
             <button
               type="button"
-              class="cursor-pointer rounded-md p-1 text-night-400 transition-colors duration-150 hover:text-night-50"
+              class="text-night-400 hover:text-night-50 cursor-pointer rounded-md p-1 transition-colors duration-150"
               aria-label="Close"
               @click="cancel"
             >
@@ -62,13 +66,17 @@
             </button>
           </div>
 
-          <footer class="flex shrink-0 items-center justify-between gap-4 border-t border-night-800 px-5 py-4">
-            <span class="truncate text-sm text-night-400">
+          <footer
+            class="border-night-800 flex shrink-0 items-center justify-between gap-4 border-t px-5 py-4"
+          >
+            <span class="text-night-400 truncate text-sm">
               {{ draftSound ? `Selected: ${draftSound.label}` : 'Nothing selected' }}
             </span>
             <span class="flex shrink-0 gap-2">
               <app-button class="px-4 py-2 text-sm" @click="cancel">Cancel</app-button>
-              <app-button variant="primary" class="px-4 py-2 text-sm" @click="apply">Apply</app-button>
+              <app-button variant="primary" class="px-4 py-2 text-sm" @click="apply"
+                >Apply</app-button
+              >
             </span>
           </footer>
         </div>

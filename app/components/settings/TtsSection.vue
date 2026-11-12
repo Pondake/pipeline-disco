@@ -1,12 +1,12 @@
 <template>
   <section>
-    <h2 class="text-xl font-bold text-night-50">Text to speech</h2>
-    <p class="mt-1 text-sm text-night-400">
+    <h2 class="text-night-50 text-xl font-bold">Text to speech</h2>
+    <p class="text-night-400 mt-1 text-sm">
       Placeholders:
       <code
         v-for="p in ['{mr_title}', '{project}', '{branch}', '{status}', '{author}', '{duration}']"
         :key="p"
-        class="mr-1.5 rounded bg-night-900 px-1 py-0.5"
+        class="bg-night-900 mr-1.5 rounded px-1 py-0.5"
         >{{ p }}</code
       >
     </p>
@@ -22,7 +22,7 @@
           :id="`tts-${t.key}`"
           v-model="tts[t.key]"
           type="text"
-          class="rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
+          class="border-night-800 bg-night-900 text-night-50 rounded-md border px-3 py-2"
         />
         <app-button class="px-3 py-2 text-sm" @click="speakTest(tts[t.key])">Speak</app-button>
       </settings-row>
@@ -31,7 +31,7 @@
         <select
           id="voice"
           v-model="tts.voice"
-          class="cursor-pointer rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50"
+          class="border-night-800 bg-night-900 text-night-50 cursor-pointer rounded-md border px-3 py-2"
         >
           <option value="">Browser default</option>
           <option v-for="v in engine.voices.value" :key="v.voiceURI" :value="v.voiceURI">
@@ -49,14 +49,14 @@
           min="0.5"
           max="2"
           step="0.1"
-          class="cursor-pointer accent-disco-500"
+          class="accent-disco-500 cursor-pointer"
         />
-        <span class="w-10 text-right text-sm text-night-400 tabular-nums"
+        <span class="text-night-400 w-10 text-right text-sm tabular-nums"
           >{{ tts.rate.toFixed(1) }}×</span
         >
       </settings-row>
 
-      <p v-if="!engine.available.value" class="text-sm text-warn-500">
+      <p v-if="!engine.available.value" class="text-warn-500 text-sm">
         No speech voices found on this device. Voices are per-device; on a Raspberry Pi, install
         espeak / speech-dispatcher so Chromium can speak.
       </p>
