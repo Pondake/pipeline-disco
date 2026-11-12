@@ -1,3 +1,15 @@
+<template>
+  <app-badge
+    :size="size === 'lg' ? 'lg' : 'md'"
+    class="max-w-[16ch] border"
+    :class="size === 'lg' ? 'text-xl' : 'text-sm'"
+    :style="style"
+    :title="projectPath"
+  >
+    {{ label }}
+  </app-badge>
+</template>
+
 <script setup lang="ts">
 const props = defineProps<{
   projectPath: string
@@ -11,15 +23,3 @@ const label = computed(
 )
 const style = computed(() => repoChipStyle(props.projectPath))
 </script>
-
-<template>
-  <AppBadge
-    :size="size === 'lg' ? 'lg' : 'md'"
-    class="max-w-[16ch] border"
-    :class="size === 'lg' ? 'text-xl' : 'text-sm'"
-    :style="style"
-    :title="projectPath"
-  >
-    {{ label }}
-  </AppBadge>
-</template>

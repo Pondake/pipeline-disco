@@ -1,4 +1,5 @@
 import type { Settings } from '#shared/types'
+
 import { defaultSettings } from '#shared/utils/defaults'
 
 export function useSettings() {

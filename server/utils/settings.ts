@@ -1,4 +1,5 @@
 import type { Settings } from '#shared/types'
+
 import { defaultSettings } from '#shared/utils/defaults'
 
 const SETTINGS_KEY = 'disco:settings'
@@ -14,7 +15,6 @@ const strings = (v: unknown): string[] =>
 export function normalizeSettings(raw: unknown): Settings {
   const d = defaultSettings()
   if (!raw || typeof raw !== 'object') return d
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- untrusted JSON boundary, shape asserted field-by-field below
   const r = raw as Record<string, any>
   return {
     version: 1,

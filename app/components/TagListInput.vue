@@ -1,26 +1,3 @@
-<script setup lang="ts">
-defineProps<{
-  label: string
-  hint?: string
-  placeholder?: string
-}>()
-
-const tags = defineModel<string[]>({ required: true })
-const draft = ref('')
-const inputId = useId()
-
-function add() {
-  const value = draft.value.trim()
-  if (!value || tags.value.includes(value)) return
-  tags.value = [...tags.value, value]
-  draft.value = ''
-}
-
-function remove(tag: string) {
-  tags.value = tags.value.filter((t) => t !== tag)
-}
-</script>
-
 <template>
   <div>
     <label :for="inputId" class="block text-sm font-semibold text-night-200">{{ label }}</label>
@@ -34,7 +11,7 @@ function remove(tag: string) {
         class="flex-1 rounded-md border border-night-800 bg-night-900 px-3 py-2 text-night-50 placeholder:text-night-600"
         @keydown.enter.prevent="add"
       />
-      <AppButton class="px-4 text-sm font-semibold" @click="add"> Add </AppButton>
+      <app-button class="px-4 text-sm font-semibold" @click="add"> Add </app-button>
     </div>
     <ul v-if="tags.length" class="mt-3 flex flex-wrap gap-2">
       <li
@@ -55,3 +32,27 @@ function remove(tag: string) {
     </ul>
   </div>
 </template>
+
+<script setup lang="ts">
+const tags = defineModel<string[]>({ required: true })
+
+defineProps<{
+  label: string
+  hint?: string
+  placeholder?: string
+}>()
+
+const draft = ref('')
+const inputId = useId()
+
+function add() {
+  const value = draft.value.trim()
+  if (!value || tags.value.includes(value)) return
+  tags.value = [...tags.value, value]
+  draft.value = ''
+}
+
+function remove(tag: string) {
+  tags.value = tags.value.filter((t) => t !== tag)
+}
+</script>

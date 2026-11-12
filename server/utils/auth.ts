@@ -1,4 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
+
 import type { H3Event } from 'h3'
 
 export const SESSION_COOKIE = 'disco_session'

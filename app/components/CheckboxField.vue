@@ -1,8 +1,3 @@
-<script setup lang="ts">
-defineProps<{ label: string; description?: string }>()
-const model = defineModel<boolean>({ required: true })
-</script>
-
 <template>
   <label class="flex items-center gap-3">
     <input v-model="model" type="checkbox" class="checkbox" />
@@ -13,6 +8,11 @@ const model = defineModel<boolean>({ required: true })
     <span v-else class="font-semibold text-night-200">{{ label }}</span>
   </label>
 </template>
+
+<script setup lang="ts">
+const model = defineModel<boolean>({ required: true })
+defineProps<{ label: string; description?: string }>()
+</script>
 
 <style scoped>
 @reference "~/assets/css/main.css";

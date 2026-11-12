@@ -1,5 +1,6 @@
-import type { PipelineEvent } from 'gitlab-event-types'
 import type { DiscoJob, IncomingEvent, JobStatus, PipelineStatus, Settings } from '#shared/types'
+import type { PipelineEvent } from 'gitlab-event-types'
+
 import { matchesAny } from '#shared/utils/match'
 
 /**

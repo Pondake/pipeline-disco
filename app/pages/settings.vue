@@ -1,49 +1,17 @@
-<script setup lang="ts">
-import type { Settings } from '#shared/types'
-import { defaultSettings } from '#shared/utils/defaults'
-
-const { save, saving } = useSettings()
-
-// Edit a local draft; nothing applies until Save.
-const draft = ref<Settings>(defaultSettings())
-const loaded = ref(false)
-const { value: toast, show: showToastValue } = useAutoDismiss<{ kind: 'ok' | 'error'; text: string }>(
-  3500,
-)
-
-onMounted(async () => {
-  draft.value = await $fetch<Settings>('/api/settings')
-  loaded.value = true
-})
-
-function showToast(kind: 'ok' | 'error', text: string) {
-  showToastValue({ kind, text })
-}
-
-async function submit() {
-  try {
-    await save(draft.value)
-    showToast('ok', 'Settings saved. Every device picks them up on its next poll.')
-  } catch {
-    showToast('error', 'Saving failed. Check the connection and try again.')
-  }
-}
-</script>
-
 <template>
   <main class="mx-auto max-w-2xl px-6 py-12">
     <header class="flex items-baseline justify-between">
       <h1 class="text-3xl font-extrabold text-night-50">Settings</h1>
-      <NuxtLink to="/" class="text-sm text-disco-300 hover:underline">Back to the board</NuxtLink>
+      <nuxt-link to="/" class="text-sm text-disco-300 hover:underline">Back to the board</nuxt-link>
     </header>
     <p class="mt-2 text-night-400">
       Shared across every device: the wallboard, your laptop, all of it.
     </p>
 
     <form v-if="loaded" class="mt-12 flex flex-col gap-14" @submit.prevent="submit">
-      <SettingsIgnoreRulesSection v-model="draft.ignore" />
-      <SettingsSoundSection v-model="draft.sound" />
-      <SettingsTtsSection v-model="draft.tts" />
+      <settings-ignore-rules-section v-model="draft.ignore" />
+      <settings-sound-section v-model="draft.sound" />
+      <settings-tts-section v-model="draft.tts" />
 
       <section>
         <h2 class="text-xl font-bold text-night-50">Polling</h2>
@@ -85,9 +53,9 @@ async function submit() {
       </section>
 
       <div class="flex items-center gap-4 border-t border-night-900 pt-6">
-        <AppButton type="submit" variant="primary" class="px-6 py-2.5" :disabled="saving">
+        <app-button type="submit" variant="primary" class="px-6 py-2.5" :disabled="saving">
           {{ saving ? 'Saving…' : 'Save settings' }}
-        </AppButton>
+        </app-button>
         <p
           v-if="toast"
           role="status"
@@ -101,3 +69,36 @@ async function submit() {
     <p v-else class="mt-12 text-night-400">Loading settings…</p>
   </main>
 </template>
+
+<script setup lang="ts">
+import type { Settings } from '#shared/types'
+
+import { defaultSettings } from '#shared/utils/defaults'
+
+const { save, saving } = useSettings()
+
+// Edit a local draft; nothing applies until Save.
+const draft = ref<Settings>(defaultSettings())
+const loaded = ref(false)
+const { value: toast, show: showToastValue } = useAutoDismiss<{ kind: 'ok' | 'error'; text: string }>(
+  3500,
+)
+
+onMounted(async () => {
+  draft.value = await $fetch<Settings>('/api/settings')
+  loaded.value = true
+})
+
+function showToast(kind: 'ok' | 'error', text: string) {
+  showToastValue({ kind, text })
+}
+
+async function submit() {
+  try {
+    await save(draft.value)
+    showToast('ok', 'Settings saved. Every device picks them up on its next poll.')
+  } catch {
+    showToast('error', 'Saving failed. Check the connection and try again.')
+  }
+}
+</script>

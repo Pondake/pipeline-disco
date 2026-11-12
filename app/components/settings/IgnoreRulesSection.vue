@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import type { IgnoreSettings } from '#shared/types'
-
-const ignore = defineModel<IgnoreSettings>({ required: true })
-</script>
-
 <template>
   <section>
     <h2 class="text-xl font-bold text-night-50">Ignore rules</h2>
@@ -12,32 +6,32 @@ const ignore = defineModel<IgnoreSettings>({ required: true })
     </p>
 
     <div class="mt-6 flex flex-col gap-6">
-      <TagListInput
+      <tag-list-input
         v-model="ignore.projects"
         label="Projects"
         hint="Project path (group/repo), name, or numeric id."
         placeholder="group/sandbox"
       />
-      <TagListInput
+      <tag-list-input
         v-model="ignore.branchPatterns"
         label="Branch patterns"
         hint="Glob patterns matched against the branch name. * matches anything."
         placeholder="renovate/*"
       />
-      <TagListInput
+      <tag-list-input
         v-model="ignore.titlePatterns"
         label="MR title patterns"
         hint="Glob patterns matched against the merge request title."
         placeholder="Draft:*"
       />
 
-      <CheckboxField
+      <checkbox-field
         v-model="ignore.onlyMrPipelines"
         label="Merge request pipelines only"
         description="Ignore push, schedule, and manual pipelines."
       />
 
-      <CheckboxField
+      <checkbox-field
         v-model="ignore.reactToCanceled"
         label="Announce canceled pipelines"
         description="Off by default; cancels are usually noise."
@@ -45,3 +39,9 @@ const ignore = defineModel<IgnoreSettings>({ required: true })
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import type { IgnoreSettings } from '#shared/types'
+
+const ignore = defineModel<IgnoreSettings>({ required: true })
+</script>

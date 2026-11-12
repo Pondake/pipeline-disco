@@ -1,3 +1,7 @@
+<template>
+  <status-indicator :label="meta.label" :dot-class="meta.dotClass" />
+</template>
+
 <script setup lang="ts">
 import type { StatusResponse } from '#shared/types'
 
@@ -14,7 +18,3 @@ const meta = computed(() => {
   }
 })
 </script>
-
-<template>
-  <StatusIndicator :label="meta.label" :dot-class="meta.dotClass" />
-</template>

@@ -1,3 +1,24 @@
+<template>
+  <nuxt-link
+    v-if="to"
+    :to="to"
+    class="app-btn"
+    :class="[variantClass[variant], { 'app-btn-active': active }]"
+  >
+    <slot />
+  </nuxt-link>
+  <button
+    v-else
+    :type="type"
+    :disabled="disabled"
+    :aria-pressed="active"
+    class="app-btn"
+    :class="[variantClass[variant], { 'app-btn-active': active }]"
+  >
+    <slot />
+  </button>
+</template>
+
 <script setup lang="ts">
 /** One button shape everywhere (DESIGN.md: rounded-md, night-900 ground,
  * night-800 border, disco-500 for primary). Padding/text-size stay on the
@@ -20,27 +41,6 @@ const variantClass = {
   primary: 'bg-disco-500 font-bold text-night-950 hover:opacity-90',
 } as const
 </script>
-
-<template>
-  <NuxtLink
-    v-if="to"
-    :to="to"
-    class="app-btn"
-    :class="[variantClass[variant], { 'app-btn-active': active }]"
-  >
-    <slot />
-  </NuxtLink>
-  <button
-    v-else
-    :type="type"
-    :disabled="disabled"
-    :aria-pressed="active"
-    class="app-btn"
-    :class="[variantClass[variant], { 'app-btn-active': active }]"
-  >
-    <slot />
-  </button>
-</template>
 
 <style scoped>
 @reference "~/assets/css/main.css";

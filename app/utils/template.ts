@@ -1,5 +1,6 @@
-import type { DiscoEvent } from '#shared/types'
 import { humanDuration } from './date'
+
+import type { DiscoEvent } from '#shared/types'
 
 /** Fill {placeholders} in a TTS template from an event. */
 export function renderTemplate(template: string, event: DiscoEvent): string {

@@ -1,3 +1,162 @@
+<template>
+  <main class="flex h-dvh flex-col overflow-hidden px-4 pt-6 pb-3 sm:px-8 sm:pt-10 sm:pb-4 lg:px-14">
+    <arm-audio-overlay v-if="!armed" />
+
+    <!-- Drenched event moment: the whole viewport becomes the outcome. -->
+    <transition
+      enter-active-class="transition-opacity duration-200 [transition-timing-function:var(--ease-out-quint)]"
+      enter-from-class="opacity-0"
+      leave-active-class="transition-opacity duration-700 [transition-timing-function:var(--ease-out-quint)]"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="flash"
+        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 px-6 text-center sm:gap-6 sm:px-12"
+        :class="
+          flash.status === 'success'
+            ? 'bg-go-700'
+            : flash.status === 'failed'
+              ? 'bg-stop-700'
+              : 'bg-night-800'
+        "
+      >
+        <p class="text-2xl font-bold uppercase tracking-widest text-night-50/80 sm:text-3xl md:text-4xl">
+          {{ pipelineStatusWord(flash.status) }}
+        </p>
+        <h2
+          class="line-clamp-3 max-w-[24ch] text-4xl font-extrabold leading-tight text-night-50 sm:text-5xl md:text-6xl lg:text-7xl"
+        >
+          {{ flash.mrTitle || flash.branch }}
+        </h2>
+        <p class="flex flex-wrap items-center justify-center gap-3 text-xl text-night-50/80 sm:text-2xl md:text-3xl">
+          <!-- Neutral chip on the flood: the viewport already carries the color. -->
+          <app-badge size="lg" class="bg-night-950/35 text-night-50">
+            {{ flash.project || flash.projectPath }}
+          </app-badge>
+          {{ flash.author }}
+        </p>
+      </div>
+    </transition>
+
+    <!-- Now zone -->
+    <header class="shrink-0">
+      <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h1 class="text-xs font-semibold uppercase tracking-[0.2em] text-night-600 sm:text-sm sm:tracking-[0.3em]">
+          Pipeline Disco
+        </h1>
+        <span v-if="latest" class="text-xs text-night-600 tabular-nums sm:text-sm">
+          last event {{ formatEventTime(latest.ts) }}
+        </span>
+      </div>
+
+      <div v-if="latest" class="mt-4 sm:mt-6">
+        <p
+          class="flex items-center gap-3 text-lg font-bold uppercase tracking-wide sm:text-2xl"
+          :class="pipelineStatusTextClass(latest.status)"
+        >
+          <status-dot v-if="latest.status === 'pending'" size="lg" pulse class="bg-current" />
+          {{ pipelineStatusWord(latest.status) }}
+        </p>
+        <p
+          class="mt-1 line-clamp-2 break-words text-3xl font-extrabold leading-tight text-night-50 sm:line-clamp-1 sm:truncate sm:text-5xl lg:text-6xl"
+        >
+          {{ latest.mrTitle || latest.branch }}
+        </p>
+        <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-night-400 sm:mt-3 sm:text-2xl">
+          <repo-badge
+            :project-path="latest.projectPath || latest.project"
+            :project="latest.project"
+            size="lg"
+          />
+          {{ latest.author }}
+        </p>
+        <p
+          v-if="latest.jobs?.length"
+          class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-xl"
+        >
+          <pipeline-stages :jobs="latest.jobs" :stages="latest.stages" class="text-base" />
+          <span
+            v-if="latest.status === 'failed' && failedJobs(latest).length"
+            class="text-stop-500"
+          >
+            failed:
+            {{
+              failedJobs(latest)
+                .map((j) => j.name)
+                .join(', ')
+            }}
+          </span>
+        </p>
+      </div>
+      <div v-else class="mt-4 sm:mt-6">
+        <p class="animate-heartbeat text-3xl font-extrabold leading-tight text-night-600 sm:text-5xl lg:text-6xl">
+          All quiet on main
+        </p>
+        <p class="mt-2 text-base text-night-600 sm:text-2xl">Waiting for the first pipeline</p>
+      </div>
+    </header>
+
+    <!-- Ledger -->
+    <section class="mt-6 min-h-0 flex-1 overflow-hidden sm:mt-10" aria-label="Recent pipelines">
+      <event-feed :events="feed" @deleted="removeFromFeed" />
+    </section>
+
+    <!-- Toolbar -->
+    <footer class="relative mt-4 flex shrink-0 items-center gap-3 pt-4">
+      <!-- Replaces a static border-t: the resting track is always visible,
+           and while listening an accent line sits on top of it, full width,
+           closing in from both edges toward the center. It meeting at the
+           center is the next poll firing. Linear timing (not the usual
+           ease-out-quint) because it represents real elapsed time, not
+           decoration. No accent line outside 'ok' — a stalled retry has no
+           meaningful countdown, so the track goes back to plain and static. -->
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-night-900"
+        aria-hidden="true"
+      />
+      <div
+        v-if="poller.connection.value === 'ok'"
+        :key="poller.pollCycle.value"
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-disco-500/50"
+        :style="{
+          animation: `poll-countdown ${poller.nextPollMs.value || 4000}ms linear 1 forwards`,
+        }"
+        aria-hidden="true"
+      />
+      <connection-status :state="poller.connection.value" />
+      <store-status :store="storeBackend" />
+      <span class="flex-1" />
+
+      <!-- Full row from sm up; below that the row would wrap into a cramped
+           multi-line grid, so it collapses into a single popover trigger. -->
+      <div class="hidden items-center gap-3 sm:flex">
+        <app-button
+          v-for="action in toolbarActions"
+          :key="action.key"
+          class="px-3 py-1.5 text-sm"
+          :active="action.active"
+          :to="action.to"
+          @click="action.onClick?.()"
+        >
+          {{ action.label }}
+        </app-button>
+      </div>
+      <actions-menu class="sm:hidden">
+        <app-button
+          v-for="action in toolbarActions"
+          :key="action.key"
+          class="w-full justify-start px-3 py-2 text-sm"
+          :active="action.active"
+          :to="action.to"
+          @click="action.onClick?.()"
+        >
+          {{ action.label }}
+        </app-button>
+      </actions-menu>
+    </footer>
+  </main>
+</template>
+
 <script setup lang="ts">
 import type { DiscoEvent, StatusResponse } from '#shared/types'
 
@@ -137,162 +296,3 @@ onUnmounted(() => {
   poller.stop()
 })
 </script>
-
-<template>
-  <main class="flex h-dvh flex-col overflow-hidden px-4 pt-6 pb-3 sm:px-8 sm:pt-10 sm:pb-4 lg:px-14">
-    <ArmAudioOverlay v-if="!armed" />
-
-    <!-- Drenched event moment: the whole viewport becomes the outcome. -->
-    <Transition
-      enter-active-class="transition-opacity duration-200 [transition-timing-function:var(--ease-out-quint)]"
-      enter-from-class="opacity-0"
-      leave-active-class="transition-opacity duration-700 [transition-timing-function:var(--ease-out-quint)]"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="flash"
-        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 px-6 text-center sm:gap-6 sm:px-12"
-        :class="
-          flash.status === 'success'
-            ? 'bg-go-700'
-            : flash.status === 'failed'
-              ? 'bg-stop-700'
-              : 'bg-night-800'
-        "
-      >
-        <p class="text-2xl font-bold uppercase tracking-widest text-night-50/80 sm:text-3xl md:text-4xl">
-          {{ pipelineStatusWord(flash.status) }}
-        </p>
-        <h2
-          class="line-clamp-3 max-w-[24ch] text-4xl font-extrabold leading-tight text-night-50 sm:text-5xl md:text-6xl lg:text-7xl"
-        >
-          {{ flash.mrTitle || flash.branch }}
-        </h2>
-        <p class="flex flex-wrap items-center justify-center gap-3 text-xl text-night-50/80 sm:text-2xl md:text-3xl">
-          <!-- Neutral chip on the flood: the viewport already carries the color. -->
-          <AppBadge size="lg" class="bg-night-950/35 text-night-50">
-            {{ flash.project || flash.projectPath }}
-          </AppBadge>
-          {{ flash.author }}
-        </p>
-      </div>
-    </Transition>
-
-    <!-- Now zone -->
-    <header class="shrink-0">
-      <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h1 class="text-xs font-semibold uppercase tracking-[0.2em] text-night-600 sm:text-sm sm:tracking-[0.3em]">
-          Pipeline Disco
-        </h1>
-        <span v-if="latest" class="text-xs text-night-600 tabular-nums sm:text-sm">
-          last event {{ formatEventTime(latest.ts) }}
-        </span>
-      </div>
-
-      <div v-if="latest" class="mt-4 sm:mt-6">
-        <p
-          class="flex items-center gap-3 text-lg font-bold uppercase tracking-wide sm:text-2xl"
-          :class="pipelineStatusTextClass(latest.status)"
-        >
-          <StatusDot v-if="latest.status === 'pending'" size="lg" pulse class="bg-current" />
-          {{ pipelineStatusWord(latest.status) }}
-        </p>
-        <p
-          class="mt-1 line-clamp-2 break-words text-3xl font-extrabold leading-tight text-night-50 sm:line-clamp-1 sm:truncate sm:text-5xl lg:text-6xl"
-        >
-          {{ latest.mrTitle || latest.branch }}
-        </p>
-        <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-night-400 sm:mt-3 sm:text-2xl">
-          <RepoBadge
-            :project-path="latest.projectPath || latest.project"
-            :project="latest.project"
-            size="lg"
-          />
-          {{ latest.author }}
-        </p>
-        <p
-          v-if="latest.jobs?.length"
-          class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-xl"
-        >
-          <PipelineStages :jobs="latest.jobs" :stages="latest.stages" class="text-base" />
-          <span
-            v-if="latest.status === 'failed' && failedJobs(latest).length"
-            class="text-stop-500"
-          >
-            failed:
-            {{
-              failedJobs(latest)
-                .map((j) => j.name)
-                .join(', ')
-            }}
-          </span>
-        </p>
-      </div>
-      <div v-else class="mt-4 sm:mt-6">
-        <p class="animate-heartbeat text-3xl font-extrabold leading-tight text-night-600 sm:text-5xl lg:text-6xl">
-          All quiet on main
-        </p>
-        <p class="mt-2 text-base text-night-600 sm:text-2xl">Waiting for the first pipeline</p>
-      </div>
-    </header>
-
-    <!-- Ledger -->
-    <section class="mt-6 min-h-0 flex-1 overflow-hidden sm:mt-10" aria-label="Recent pipelines">
-      <EventFeed :events="feed" @deleted="removeFromFeed" />
-    </section>
-
-    <!-- Toolbar -->
-    <footer class="relative mt-4 flex shrink-0 items-center gap-3 pt-4">
-      <!-- Replaces a static border-t: the resting track is always visible,
-           and while listening an accent line sits on top of it, full width,
-           closing in from both edges toward the center. It meeting at the
-           center is the next poll firing. Linear timing (not the usual
-           ease-out-quint) because it represents real elapsed time, not
-           decoration. No accent line outside 'ok' — a stalled retry has no
-           meaningful countdown, so the track goes back to plain and static. -->
-      <div
-        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-night-900"
-        aria-hidden="true"
-      />
-      <div
-        v-if="poller.connection.value === 'ok'"
-        :key="poller.pollCycle.value"
-        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-disco-500/50"
-        :style="{
-          animation: `poll-countdown ${poller.nextPollMs.value || 4000}ms linear 1 forwards`,
-        }"
-        aria-hidden="true"
-      />
-      <ConnectionStatus :state="poller.connection.value" />
-      <StoreStatus :store="storeBackend" />
-      <span class="flex-1" />
-
-      <!-- Full row from sm up; below that the row would wrap into a cramped
-           multi-line grid, so it collapses into a single popover trigger. -->
-      <div class="hidden items-center gap-3 sm:flex">
-        <AppButton
-          v-for="action in toolbarActions"
-          :key="action.key"
-          class="px-3 py-1.5 text-sm"
-          :active="action.active"
-          :to="action.to"
-          @click="action.onClick?.()"
-        >
-          {{ action.label }}
-        </AppButton>
-      </div>
-      <ActionsMenu class="sm:hidden">
-        <AppButton
-          v-for="action in toolbarActions"
-          :key="action.key"
-          class="w-full justify-start px-3 py-2 text-sm"
-          :active="action.active"
-          :to="action.to"
-          @click="action.onClick?.()"
-        >
-          {{ action.label }}
-        </AppButton>
-      </ActionsMenu>
-    </footer>
-  </main>
-</template>

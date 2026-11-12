@@ -1,19 +1,6 @@
-<script setup lang="ts">
-/** Collapses a row of toolbar actions into a single trigger below the width
- * where they'd otherwise wrap into a cramped multi-row grid (see footer in
- * index.vue). Native popover API: light-dismiss and top-layer stacking for
- * free, no portal/z-index bookkeeping. */
-const menuId = `actions-menu-${useId()}`
-const panel = ref<HTMLElement | null>(null)
-
-function closeMenu() {
-  panel.value?.hidePopover()
-}
-</script>
-
 <template>
   <div class="actions-menu">
-    <AppButton
+    <app-button
       class="px-3 py-1.5 text-sm"
       type="button"
       :popovertarget="menuId"
@@ -29,12 +16,25 @@ function closeMenu() {
         </svg>
         Menu
       </slot>
-    </AppButton>
+    </app-button>
     <div :id="menuId" ref="panel" popover class="actions-menu-panel" @click="closeMenu">
       <slot />
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+/** Collapses a row of toolbar actions into a single trigger below the width
+ * where they'd otherwise wrap into a cramped multi-row grid (see footer in
+ * index.vue). Native popover API: light-dismiss and top-layer stacking for
+ * free, no portal/z-index bookkeeping. */
+const menuId = `actions-menu-${useId()}`
+const panel = ref<HTMLElement | null>(null)
+
+function closeMenu() {
+  panel.value?.hidePopover()
+}
+</script>
 
 <style scoped>
 @reference "~/assets/css/main.css";
