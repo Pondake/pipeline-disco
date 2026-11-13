@@ -24,7 +24,7 @@ importers:
     devDependencies:
       '@absolit/lint-config':
         specifier: github:Pondake/lint-config#v1.0.2
-        version: https://codeload.github.com/Pondake/lint-config/tar.gz/b1fa23b1b060de65823e5f01801a415961134070(@stylistic/eslint-plugin@5.10.0(eslint@10.14.0(jiti@2.7.0)))(@typescript-eslint/parser@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/utils@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.14.0(jiti@2.7.0)))(eslint-plugin-react-refresh@0.5.7(eslint@10.14.0(jiti@2.7.0)))(eslint@10.14.0(jiti@2.7.0))(prettier@3.10.0)(typescript@5.9.3)
+        version: https://codeload.github.com/Pondake/lint-config/tar.gz/569426d88b73658fe52983fe995759569c548a07(@stylistic/eslint-plugin@5.10.0(eslint@10.14.0(jiti@2.7.0)))(@typescript-eslint/parser@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/utils@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.14.0(jiti@2.7.0)))(eslint-plugin-react-refresh@0.5.7(eslint@10.14.0(jiti@2.7.0)))(eslint@10.14.0(jiti@2.7.0))(prettier@3.10.0)(typescript@5.9.3)
       '@iconify-json/tabler':
         specifier: ^1.2.44
         version: 1.2.44
@@ -55,8 +55,8 @@ importers:
 
 packages:
 
-  '@absolit/lint-config@https://codeload.github.com/Pondake/lint-config/tar.gz/b1fa23b1b060de65823e5f01801a415961134070':
-    resolution: {tarball: https://codeload.github.com/Pondake/lint-config/tar.gz/b1fa23b1b060de65823e5f01801a415961134070}
+  '@absolit/lint-config@https://codeload.github.com/Pondake/lint-config/tar.gz/569426d88b73658fe52983fe995759569c548a07':
+    resolution: {tarball: https://codeload.github.com/Pondake/lint-config/tar.gz/569426d88b73658fe52983fe995759569c548a07}
     version: 1.0.2
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
@@ -4116,7 +4116,7 @@ packages:
 
 snapshots:
 
-  '@absolit/lint-config@https://codeload.github.com/Pondake/lint-config/tar.gz/b1fa23b1b060de65823e5f01801a415961134070(@stylistic/eslint-plugin@5.10.0(eslint@10.14.0(jiti@2.7.0)))(@typescript-eslint/parser@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/utils@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.14.0(jiti@2.7.0)))(eslint-plugin-react-refresh@0.5.7(eslint@10.14.0(jiti@2.7.0)))(eslint@10.14.0(jiti@2.7.0))(prettier@3.10.0)(typescript@5.9.3)':
+  '@absolit/lint-config@https://codeload.github.com/Pondake/lint-config/tar.gz/569426d88b73658fe52983fe995759569c548a07(@stylistic/eslint-plugin@5.10.0(eslint@10.14.0(jiti@2.7.0)))(@typescript-eslint/parser@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/utils@8.72.2(eslint@10.14.0(jiti@2.7.0))(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.14.0(jiti@2.7.0)))(eslint-plugin-react-refresh@0.5.7(eslint@10.14.0(jiti@2.7.0)))(eslint@10.14.0(jiti@2.7.0))(prettier@3.10.0)(typescript@5.9.3)':
     dependencies:
       '@eslint/js': 10.0.1(eslint@10.14.0(jiti@2.7.0))
       eslint: 10.14.0(jiti@2.7.0)
